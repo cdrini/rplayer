@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <RecordPlayer
+      class="record-player"
       ref="recordPlayer"
       @loadedmetadata="handleVideoLoaded"
       :videoWidth="videoWidth"
@@ -45,27 +46,27 @@
       <TrackList v-if="album == activeAlbum" :songs="album.tracklist" />
     </div>
 
-    <div class="toolbar">
-      <div>
+    <div class="right-toolbar" >
+      <ChunkyButton @click="shuffleBackgroundRecords">
+        <template #label>Shuffle</template>
+      </ChunkyButton>
+      <ChunkyButton @click="settingsDrawerOpen = !settingsDrawerOpen">
+        <SettingsIcon />
+        <template #label>Settings</template>
+      </ChunkyButton>
+    </div>
+
+    <div v-if="drawerOpen" class="drawer-screen" @click="closeDrawers" />
+
+    <div v-if="settingsDrawerOpen" class="settings-drawer">
+      <header>
+        <button @click="settingsDrawerOpen = false">
+          «
+          <h2>Settings</h2>
+        </button>
+      </header>
+      <main>
         <details>
-          <summary>Queue</summary>
-          Hello
-        </details>
-      </div>
-      <div>
-        <button
-          class="play-button"
-          v-if="!playing"
-          @click="$refs.aplayer.play()"
-        >
-          Play
-        </button>
-      </div>
-      <div>
-        <button class="shuffle-records" @click="shuffleBackgroundRecords">
-          Shuffle
-        </button>
-        <details class="dev-controls">
           <summary>Dev Controls</summary>
 
           <label>
@@ -120,10 +121,17 @@
             />
           </label>
         </details>
-      </div>
+      </main>
     </div>
 
-
+    <div class="center-toolbar">
+        <ChunkyButton
+          v-if="!playing"
+          @click="$refs.aplayer.play()"
+        >
+          <template #label>Play</template>
+        </ChunkyButton>
+    </div>
 
     <br />
     Video Source:
@@ -143,6 +151,8 @@ import PointInput from "./components/PointInput";
 import NumberInput from "./components/NumberInput";
 import TrackList from "./components/TrackList";
 import RecordPlayer from "./components/RecordPlayer";
+import SettingsIcon from "./components/icons/SettingsIcon";
+import ChunkyButton from "./components/ChunkyButton";
 import Vue from 'vue'
 import AsyncComputed from 'vue-async-computed'
 
@@ -204,7 +214,7 @@ async function album_from_ocaid(ocaid) {
 
 export default {
   name: "App",
-  components: { PointInput, NumberInput, TrackList, RecordPlayer },
+  components: { ChunkyButton, PointInput, NumberInput, TrackList, RecordPlayer, SettingsIcon },
   data() {
     return {
       // Queue stuff
@@ -216,6 +226,8 @@ export default {
 
       /** @type {'restored' | 'default'} */
       preferredQuality: 'restored',
+
+      settingsDrawerOpen: true,
 
       showRegions: false,
       videoWidth: 300,
@@ -308,6 +320,10 @@ export default {
     activeSong() {
       return this.activeAlbum?.tracklist?.[this.activeSongIndex];
     },
+
+    drawerOpen() {
+      return this.settingsDrawerOpen;
+    },
     cycleLength() {
       return 1 / (this.rpm / 60);
     },
@@ -367,6 +383,10 @@ export default {
         this.query = hashParams.get("query");
     },
 
+    closeDrawers() {
+      this.settingsDrawerOpen = false;
+    },
+
     loadAndPlay() {
       this.$refs.aplayer?.load();
       this.$refs.aplayer?.addEventListener('loadedmetadata', () => {
@@ -420,12 +440,19 @@ export default {
 html,
 body {
   margin: 0;
+  overflow-x: hidden;
 }
 #app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: "Roboto", "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
+}
+
+.record-player video,
+.record-player svg {
+  height: 100vh;
+  object-fit: cover;
 }
 
 .ia-player-wrapper {
@@ -442,35 +469,24 @@ body {
   cursor: pointer;
 }
 
-input,
-.toolbar button {
+input {
   box-sizing: border-box;
   font: inherit;
 }
 
-.dev-controls,
 input.query-input,
-.ocaid-input,
-.toolbar button {
+.ocaid-input {
   background: rgba(255, 255, 255, 0.9);
   padding: 10px;
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.5);
 }
 
-.dev-controls,
-.toolbar button {
-  margin: 8px;
-  opacity: 0.5;
-  transition: opacity 0.5s;
-  transition-delay: 0.5s;
-}
-
 button {
   cursor: pointer;
 }
 
-:is(.dev-controls, button):hover {
+:is(button):hover {
   opacity: 1;
 }
 
@@ -485,27 +501,65 @@ button.play-button {
   opacity: 1;
 }
 
-.toolbar {
+.right-toolbar {
   position: absolute;
-  bottom: 50px;
-  padding: 0;
-  pointer-events: none;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+}
+
+.right-toolbar .chunky-button + .chunky-button {
+  margin-top: 0;
+}
+
+.settings-drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 300px;
+  max-width: 100vw;
+  height: 100%;
+  position: fixed;
+  background: rgba(255,255,255, 0.95);
+  border-radius: 4px 0 0 4px;
+  box-shadow: 0 0 rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
+
+.settings-drawer > main {
+  padding: 8px;
+}
+
+.settings-drawer > header button {
   width: 100%;
   display: flex;
-  justify-content: space-between;
 }
 
-.toolbar > * > * {
-  display: inline-block;
-  pointer-events: all;
-}
+.drawer-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: black;
+  opacity: 0.2;
 
-.toolbar > * > details {
-  padding: 0;
-}
-.toolbar > * > details summary {
   cursor: pointer;
-  padding: 10px;
+  transition: opacity 0.2s;
+}
+.drawer-screen:hover {
+  opacity: 0.1;
+}
+
+.center-toolbar {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2em;
 }
 
 audio { width: 100%; }

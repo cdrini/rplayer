@@ -16,6 +16,7 @@
       :viewBox="`0 0 ${videoWidth} ${videoHeight}`"
       style="cursor: pointer"
       @click="playing ? pause() : play()"
+      preserveAspectRatio="xMidYMid slice"
     >
       <defs>
           <mask id="label-mask">
@@ -393,7 +394,7 @@ export default {
 </script>
 
 <style>
-svg {
+.video-wrapper > svg {
   width: 100%;
   position: absolute;
   top: 0;
