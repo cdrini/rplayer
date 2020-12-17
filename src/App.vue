@@ -181,7 +181,7 @@ function extract_tracklist(ocaid, metadata) {
     return {
       // title: orig.title.replace(/ \(restored\)$/, ''),
       title: orig.title,
-      quality: get_quality(f),
+      quality,
       src: `https://archive.org/download/${ocaid}/${f.name}`,
       artist: get_artist(orig),
       track: get_track(orig),
