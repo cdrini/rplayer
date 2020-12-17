@@ -35,12 +35,15 @@
     />
     <textarea class="ocaid-input" v-model="ocaid" placeholder="IA ids" />
 
-    <div class="albums-queue" v-for="album of albumsQueue" :key="album.ocaid">
-      <img class="albums-queue__cover" :src="album.labelSource" />
-      <TrackList
-        v-if="album == activeAlbum"
-        :songs="filterTrackList(album.tracklist)"
-      />
+    <div class="albums-queue">
+      <div
+        class="albums-queue__album"
+        v-for="album of albumsQueue"
+        :key="album.ocaid"
+      >
+        <img class="albums-queue__cover" :src="album.labelSource" />
+        <TrackList :songs="filterTrackList(album.tracklist)" />
+      </div>
     </div>
 
     <div class="right-toolbar">
@@ -521,6 +524,8 @@ body {
   margin: 0;
   overflow-x: hidden;
 }
+
+body { overflow: hidden; }
 #app {
   font-family: "Roboto", "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -652,10 +657,24 @@ audio {
 
 .albums-queue__cover {
   width: 90%;
-  max-width: 600px;
+  max-width: 400px;
   border-radius: 2px;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.3);
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+  border-radius: 100%;
+}
+
+.albums-queue__album {
+  display: flex;
+  align-items: flex-start;
+  margin: 0 auto;
+  margin-bottom: -100px;
+  max-width: 1000px;
+}
+
+.albums-queue .tracklist {
+  margin-top: 50px;
+  flex: 1;
 }
 </style>
