@@ -583,7 +583,7 @@ input.query-input,
   box-sizing: border-box;
   width: 100%;
   max-width: 600px;
-  white-space: nowrap;
+  white-space: pre;
 }
 
 button.play-button {
