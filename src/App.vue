@@ -37,7 +37,10 @@
 
     <div class="albums-queue" v-for="album of albumsQueue" :key="album.ocaid">
       <img class="albums-queue__cover" :src="album.labelSource" />
-      <TrackList v-if="album == activeAlbum" :songs="album.tracklist" />
+      <TrackList
+        v-if="album == activeAlbum"
+        :songs="filterTrackList(album.tracklist)"
+      />
     </div>
 
     <div class="right-toolbar">
@@ -60,6 +63,34 @@
         </button>
       </header>
       <main>
+        <div>
+          <b>Preferred Track Quality</b>
+          <br />
+          <small
+            >Some tracks have been digitally restored for better quality.</small
+          >
+          <br />
+          <label>
+            <input type="radio" v-model="preferredQuality" value="restored" />
+            Restored
+          </label>
+          <br />
+          <label>
+            <input type="radio" v-model="preferredQuality" value="unrestored" />
+            Unrestored
+          </label>
+          <br />
+          <label>
+            <input type="radio" v-model="preferredQuality" value="both" />
+            <div style="display: inline-block; vertical-align: top">
+              Both
+              <br />
+              <small>May result in songs appearing duplicated</small>
+            </div>
+          </label>
+        </div>
+
+        <hr />
         <details>
           <summary>Dev Controls</summary>
 
@@ -171,29 +202,53 @@ function extract_tracklist(ocaid, metadata) {
     return m ? m[1] : orig.track;
   };
   const get_quality = (f) => {
-    return /restored\.[a-z0-9]+$/.test(f.name) ? "restored" : "default";
+    return /restored\.[a-z0-9]+$/.test(f.name) ? "restored" : "unrestored";
   };
 
-  return (
-    metadata.files
-      .filter((f) => f.name.endsWith(".mp3"))
-      .filter((f) => get_original(f).title)
-      // .filter(f => get_quality(f) == this.quality)
-      .map((f) => {
-        const orig = get_original(f);
-        const quality = get_quality(f);
-        return {
-          // title: orig.title.replace(/ \(restored\)$/, ''),
-          title: orig.title,
-          quality,
-          src: `https://archive.org/download/${ocaid}/${f.name}`,
-          artist: get_artist(orig),
-          track: get_track(orig),
-          album: orig.album,
-          duration: parseFloat(orig.length),
-        };
-      })
-  );
+  const originals = metadata.files
+    .filter((f) => f.source === "original")
+    .map((f) => Object.assign({}, f, { deriveds: [] }));
+  const deriveds = metadata.files.filter((f) => f.source !== "original");
+  // Attach the deriveds to the originals
+  deriveds
+    .filter((f) => get_original(f))
+    .forEach((f) => {
+      const orig = get_original(f);
+      originals.find((o) => o.name == orig.name).deriveds.push(f);
+    });
+
+  const tracklist = originals
+    .filter((f) => f.title && !f.name.startsWith("history/"))
+    // .filter(f => get_quality(f) == this.quality)
+    .map((orig) => {
+      const mp3 = orig.deriveds.find((f) => f.name.endsWith(".mp3"));
+      const quality = get_quality(orig);
+      return {
+        // title: orig.title.replace(/ \(restored\)$/, ''),
+        title: orig.title,
+        quality,
+        src: `https://archive.org/download/${ocaid}/${mp3.name}`,
+        artist: get_artist(orig),
+        track: get_track(orig),
+        album: orig.album,
+        duration: parseFloat(orig.length),
+        original: orig,
+      };
+    });
+  tracklist.forEach((track) => {
+    if (track.quality === "restored") {
+      // See if it has an un-restored version
+      const unrestoredCandidates = tracklist.filter(
+        (t2) => t2.track == track.track && t2 != track
+      );
+      if (unrestoredCandidates.length == 1) {
+        track.hasUnrestoredCopy = true;
+        unrestoredCandidates[0].hasRestoredCopy = true;
+      }
+      // otherwise all false (show twice)
+    }
+  });
+  return tracklist;
 }
 
 async function album_from_ocaid(ocaid) {
@@ -228,7 +283,7 @@ export default {
       ocaid:
         "78_santa-baby_eartha-kitt-p.-springer-javits-t.-springer-henri-rene-and-his-orchestra_gbia0001251a",
 
-      /** @type {'restored' | 'default'} */
+      /** @type {'restored' | 'unrestored' | 'both'} */
       preferredQuality: "restored",
 
       settingsDrawerOpen: false,
@@ -323,8 +378,12 @@ export default {
     },
   },
   computed: {
+    activeTrackList() {
+      if (!this.activeAlbum) return;
+      return this.filterTrackList(this.activeAlbum?.tracklist);
+    },
     activeSong() {
-      return this.activeAlbum?.tracklist?.[this.activeSongIndex];
+      return this.activeTrackList?.[this.activeSongIndex];
     },
 
     drawerOpen() {
@@ -393,6 +452,16 @@ export default {
       this.settingsDrawerOpen = false;
     },
 
+    filterTrackList(tracklist) {
+      return (tracklist || []).filter(
+        (track) =>
+          this.preferredQuality === "both" ||
+          track.quality === this.preferredQuality ||
+          (this.preferredQuality === "restored" && !track.hasRestoredCopy) ||
+          (this.preferredQuality === "unrestored" && !track.hasUnrestoredCopy)
+      );
+    },
+
     loadAndPlay() {
       this.$refs.aplayer?.load();
       this.$refs.aplayer?.addEventListener(
@@ -410,7 +479,7 @@ export default {
     },
 
     nextSong() {
-      if (this.activeSongIndex + 1 == this.activeAlbum.tracklist.length) {
+      if (this.activeSongIndex + 1 == this.activeTrackList.length) {
         // out! Try to go to next album
         this.nextAlbum();
       } else {
@@ -526,21 +595,26 @@ button.play-button {
 }
 
 .settings-drawer {
-  position: absolute;
-  top: 0;
+  top: 10px;
+  bottom: 10px;
   right: 0;
   width: 300px;
   max-width: 100vw;
-  height: 100%;
   position: fixed;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 4px 0 0 4px;
-  box-shadow: 0 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .settings-drawer > main {
   padding: 8px;
+}
+
+.settings-drawer > header {
+  position: sticky;
+  top: 0;
 }
 
 .settings-drawer > header button {
