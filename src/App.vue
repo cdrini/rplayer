@@ -6,19 +6,17 @@
       @loadedmetadata="handleVideoLoaded"
       :videoWidth="videoWidth"
       :videoHeight="videoHeight"
-
       :videoRegions="videoRegions"
       :labelRegions="labelRegions"
       :labelCoords="labelCoords"
       :labelPosition="labelPosition"
       :labelSource="labelSource"
-
       :backgroundRecords="backgroundRecords"
       :showRegions="showRegions"
       :cycleLength="cycleLength"
       @play="$refs.aplayer.play()"
       @pause="$refs.aplayer.pause()"
-      />
+    />
 
     <audio
       controls
@@ -35,18 +33,14 @@
       v-model="query"
       placeholder="IA Query"
     />
-    <textarea
-      class="ocaid-input"
-      v-model="ocaid"
-      placeholder="IA ids"
-    />
+    <textarea class="ocaid-input" v-model="ocaid" placeholder="IA ids" />
 
     <div class="albums-queue" v-for="album of albumsQueue" :key="album.ocaid">
       <img class="albums-queue__cover" :src="album.labelSource" />
       <TrackList v-if="album == activeAlbum" :songs="album.tracklist" />
     </div>
 
-    <div class="right-toolbar" >
+    <div class="right-toolbar">
       <ChunkyButton @click="shuffleBackgroundRecords">
         <template #label>Shuffle</template>
       </ChunkyButton>
@@ -103,12 +97,7 @@
 
           <label>
             RPM
-            <NumberInput
-              :step="1"
-              :min="1"
-              :max="100"
-              v-model="rpm"
-            />
+            <NumberInput :step="1" :min="1" :max="100" v-model="rpm" />
           </label>
           <br />
           <label>
@@ -125,12 +114,9 @@
     </div>
 
     <div class="center-toolbar">
-        <ChunkyButton
-          v-if="!playing"
-          @click="$refs.aplayer.play()"
-        >
-          <template #label>Play</template>
-        </ChunkyButton>
+      <ChunkyButton v-if="!playing" @click="$refs.aplayer.play()">
+        <template #label>Play</template>
+      </ChunkyButton>
     </div>
 
     <br />
@@ -153,57 +139,67 @@ import TrackList from "./components/TrackList";
 import RecordPlayer from "./components/RecordPlayer";
 import SettingsIcon from "./components/icons/SettingsIcon";
 import ChunkyButton from "./components/ChunkyButton";
-import Vue from 'vue'
-import AsyncComputed from 'vue-async-computed'
+import Vue from "vue";
+import AsyncComputed from "vue-async-computed";
 
 Vue.use(AsyncComputed);
 
 function extract_tracklist(ocaid, metadata) {
-  const get_original = file => file.source === 'original' ? file : metadata.files.find(f => f.name === file.original);
+  const get_original = (file) =>
+    file.source === "original"
+      ? file
+      : metadata.files.find((f) => f.name === file.original);
 
-  const get_artist = orig => {
-    const normalize_creator = c =>
-      c instanceof Array ? c.join(', ')
-      : c ? normalize_creator(c.split(';'))
-      : c;
+  const get_artist = (orig) => {
+    const normalize_creator = (c) =>
+      c instanceof Array
+        ? c.join(", ")
+        : c
+        ? normalize_creator(c.split(";"))
+        : c;
     const artist = normalize_creator(orig.artist);
     const creator = normalize_creator(orig.creator);
     return artist && creator
-    ? (artist.length < creator.length) ? artist : creator
-    : (artist || creator);
+      ? artist.length < creator.length
+        ? artist
+        : creator
+      : artist || creator;
   };
 
-  const get_track = orig => {
+  const get_track = (orig) => {
     const m = orig.name.match(/^_?(\d{2})/);
     return m ? m[1] : orig.track;
   };
-  const get_quality = f => {
-    return /restored\.[a-z0-9]+$/.test(f.name) ? 'restored' : 'default';
+  const get_quality = (f) => {
+    return /restored\.[a-z0-9]+$/.test(f.name) ? "restored" : "default";
   };
 
-  return metadata.files
-  .filter(f => f.name.endsWith('.mp3'))
-  .filter(f => get_original(f).title)
-  // .filter(f => get_quality(f) == this.quality)
-  .map(f => {
-    const orig = get_original(f);
-    const quality = get_quality(f);
-    return {
-      // title: orig.title.replace(/ \(restored\)$/, ''),
-      title: orig.title,
-      quality,
-      src: `https://archive.org/download/${ocaid}/${f.name}`,
-      artist: get_artist(orig),
-      track: get_track(orig),
-      album: orig.album,
-      duration: parseFloat(orig.length)
-    };
-  });
+  return (
+    metadata.files
+      .filter((f) => f.name.endsWith(".mp3"))
+      .filter((f) => get_original(f).title)
+      // .filter(f => get_quality(f) == this.quality)
+      .map((f) => {
+        const orig = get_original(f);
+        const quality = get_quality(f);
+        return {
+          // title: orig.title.replace(/ \(restored\)$/, ''),
+          title: orig.title,
+          quality,
+          src: `https://archive.org/download/${ocaid}/${f.name}`,
+          artist: get_artist(orig),
+          track: get_track(orig),
+          album: orig.album,
+          duration: parseFloat(orig.length),
+        };
+      })
+  );
 }
 
 async function album_from_ocaid(ocaid) {
-  const metadata = await fetch(`https://archive.org/metadata/${ocaid}`)
-    .then(r => r.json());
+  const metadata = await fetch(
+    `https://archive.org/metadata/${ocaid}`
+  ).then((r) => r.json());
   return {
     ocaid,
     metadata,
@@ -214,18 +210,26 @@ async function album_from_ocaid(ocaid) {
 
 export default {
   name: "App",
-  components: { ChunkyButton, PointInput, NumberInput, TrackList, RecordPlayer, SettingsIcon },
+  components: {
+    ChunkyButton,
+    PointInput,
+    NumberInput,
+    TrackList,
+    RecordPlayer,
+    SettingsIcon,
+  },
   data() {
     return {
       // Queue stuff
       activeSongIndex: 0,
       activeAlbumIndex: 0,
 
-      query: '',
-      ocaid: '78_santa-baby_eartha-kitt-p.-springer-javits-t.-springer-henri-rene-and-his-orchestra_gbia0001251a',
+      query: "",
+      ocaid:
+        "78_santa-baby_eartha-kitt-p.-springer-javits-t.-springer-henri-rene-and-his-orchestra_gbia0001251a",
 
       /** @type {'restored' | 'default'} */
-      preferredQuality: 'restored',
+      preferredQuality: "restored",
 
       settingsDrawerOpen: false,
 
@@ -261,22 +265,22 @@ export default {
 
       candidateBackgroundRecords: [
         // Christmas songs
-        '78_christmas-day-part-ii_men-about-town_gbia0020416',
+        "78_christmas-day-part-ii_men-about-town_gbia0020416",
         // Other
-        '78_alice-in-wonderland-songs-from-mother-goose__gbia0007708',
-        '78_whispering-grass-dont-tell-the-trees_ink-spots-jack-lawrence_gbia0020004',
-        '78_nine-pound-hammer_merle-travis-travis-nation-hensley_gbia0085986',
-        '78_for-quiet-beauty_y-ciannella-l-winter-r-hunter-t-pyle-carringer_gbia0082727',
-        '78_the-young-birch-tree_red-army-choir-of-the-ussr-a-alexandrov-v-pankov_gbia0020378',
-        '78_pavanne_glenn-miller-and-his-orchestra-j-r-shannon-frederic-knight-logan_gbia0020267',
-        '78_ive-got-a-right-to-cry_erskine-hawkins-and-his-orchestra-jimmy-mitchelle-unger-ber_gbia0083001',
-        '78_lullaby-for-a-man-condemned-to-be-hanged-at-dawn_alexander-kipnis-with-balalaika-or_gbia0033142',
-        '78_song-of-praise_malinke-tribe-laura-c-boulton_gbia0067634',
-        '78_always_swing-and-sway-with-sammy-kaye-irving-berlin_gbia0083045',
-        '78_king-cole-trio-vol.-2_the-king-cole-trio-nat-cole_gbia0003357',
-        '78_ja-so-bin-ich_marlene-dietrich-peter-kreuder-and-his-orchestra-nelson-hollander_gbia0020059',
-        '78_the-first-nowell_the-lyn-murray-singers-oakeley-lyn-murray_gbia0020460',
-        '78_good-night-sweetheart_tony-martin-earle-hagen-and-his-orchestra-otto-harbach-jerom_gbia0083008',
+        "78_alice-in-wonderland-songs-from-mother-goose__gbia0007708",
+        "78_whispering-grass-dont-tell-the-trees_ink-spots-jack-lawrence_gbia0020004",
+        "78_nine-pound-hammer_merle-travis-travis-nation-hensley_gbia0085986",
+        "78_for-quiet-beauty_y-ciannella-l-winter-r-hunter-t-pyle-carringer_gbia0082727",
+        "78_the-young-birch-tree_red-army-choir-of-the-ussr-a-alexandrov-v-pankov_gbia0020378",
+        "78_pavanne_glenn-miller-and-his-orchestra-j-r-shannon-frederic-knight-logan_gbia0020267",
+        "78_ive-got-a-right-to-cry_erskine-hawkins-and-his-orchestra-jimmy-mitchelle-unger-ber_gbia0083001",
+        "78_lullaby-for-a-man-condemned-to-be-hanged-at-dawn_alexander-kipnis-with-balalaika-or_gbia0033142",
+        "78_song-of-praise_malinke-tribe-laura-c-boulton_gbia0067634",
+        "78_always_swing-and-sway-with-sammy-kaye-irving-berlin_gbia0083045",
+        "78_king-cole-trio-vol.-2_the-king-cole-trio-nat-cole_gbia0003357",
+        "78_ja-so-bin-ich_marlene-dietrich-peter-kreuder-and-his-orchestra-nelson-hollander_gbia0020059",
+        "78_the-first-nowell_the-lyn-murray-singers-oakeley-lyn-murray_gbia0020460",
+        "78_good-night-sweetheart_tony-martin-earle-hagen-and-his-orchestra-otto-harbach-jerom_gbia0083008",
         "78_west-end-blues_louis-armstrong-and-his-orchestra-spencer-williams_gbia0031327",
         "78_boogie-woogie-music-vol.-2_meade-lux-lewis-shayne_gbia0003369",
         "78_in-the-mood_glenn-miller-and-his-orchestra-johnson-dash-hawkins_gbia0020402",
@@ -304,14 +308,16 @@ export default {
   asyncComputed: {
     async albumsQueue() {
       if (this.ocaid) {
-        const ocaids = this.ocaid.split(/[,|;\n]/mg);
+        const ocaids = this.ocaid.split(/[,|;\n]/gm);
         return await Promise.all(ocaids.map(album_from_ocaid));
       }
     },
     async activeAlbum() {
       let album = this.albumsQueue[this.activeAlbumIndex];
       if (!album.metadata) {
-        album = this.albumsQueue[this.activeAlbumIndex] = await album_from_ocaid(album.ocaid);
+        album = this.albumsQueue[
+          this.activeAlbumIndex
+        ] = await album_from_ocaid(album.ocaid);
       }
       return album;
     },
@@ -389,9 +395,13 @@ export default {
 
     loadAndPlay() {
       this.$refs.aplayer?.load();
-      this.$refs.aplayer?.addEventListener('loadedmetadata', () => {
-        this.$refs.aplayer.play();
-      }, { once: true });
+      this.$refs.aplayer?.addEventListener(
+        "loadedmetadata",
+        () => {
+          this.$refs.aplayer.play();
+        },
+        { once: true }
+      );
     },
 
     skipToSong(index) {
@@ -523,7 +533,7 @@ button.play-button {
   max-width: 100vw;
   height: 100%;
   position: fixed;
-  background: rgba(255,255,255, 0.95);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 4px 0 0 4px;
   box-shadow: 0 0 rgba(0, 0, 0, 0.5);
   box-sizing: border-box;
@@ -562,14 +572,16 @@ button.play-button {
   font-size: 2em;
 }
 
-audio { width: 100%; }
+audio {
+  width: 100%;
+}
 
 .albums-queue__cover {
   width: 90%;
   max-width: 600px;
   border-radius: 2px;
   overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.3);
-  box-shadow: 0 0 4px rgba(0,0,0,0.5);
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
 }
 </style>

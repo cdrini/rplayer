@@ -1,8 +1,5 @@
 <template>
-  <button
-    class="chunky-button"
-    @click="$emit('click', $event)"
-  >
+  <button class="chunky-button" @click="$emit('click', $event)">
     <div class="chunky-button__icon">
       <slot />
     </div>

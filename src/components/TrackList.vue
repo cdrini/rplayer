@@ -7,7 +7,7 @@
       style="display: flex; align-items: center"
     >
       <div class="tracklist__song-index">
-        {{ song.track || (i + 1) }}
+        {{ song.track || i + 1 }}
       </div>
       <div style="flex: 1">
         <div class="tracklist__song-title">{{ song.title }}</div>
@@ -28,14 +28,14 @@
  * @return {string}
  */
 function formatDuration(duration) {
-  if (typeof duration === 'string') return duration;
+  if (typeof duration === "string") return duration;
 
   const secs = duration % 60;
   const mins = (duration - secs) / 60;
   return [mins, secs]
     .map(Math.round)
-    .map(n => n.toString().padStart(2, '0'))
-    .join(':');
+    .map((n) => n.toString().padStart(2, "0"))
+    .join(":");
 }
 
 export default {
@@ -58,7 +58,7 @@ export default {
       ],
     },
   },
-  methods: { formatDuration }
+  methods: { formatDuration },
 };
 </script>
 
