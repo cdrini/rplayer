@@ -227,7 +227,7 @@ export default {
       /** @type {'restored' | 'default'} */
       preferredQuality: 'restored',
 
-      settingsDrawerOpen: true,
+      settingsDrawerOpen: false,
 
       showRegions: false,
       videoWidth: 300,
