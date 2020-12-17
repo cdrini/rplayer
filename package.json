@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "preinstall": "npx npm-force-resolutions"
   },
   "dependencies": {
     "@vue/cli-plugin-babel": "^4.5.9",
@@ -14,24 +15,34 @@
     "vue-async-computed": "3.9.0"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.12.7",
     "@vue/cli-plugin-eslint": "^4.5.9",
     "@vue/cli-service": "^4.5.9",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.15.0",
     "eslint-plugin-vue": "^7.3.0",
-    "vue-template-compiler": "^2.6.12"
+    "vue-template-compiler": "^2.6.12",
+    "webpack": "^4.44.2"
+  },
+  "resolutions": {
+    "acorn": "ZZ8.0.1"
+  },
+  "babel": {
+    "plugins": [
+      "@babel/plugin-proposal-optional-chaining"
+    ]
   },
   "eslintConfig": {
     "root": true,
     "env": {
-      "node": true
+      "browser": true
     },
     "extends": [
       "plugin:vue/essential",
       "eslint:recommended"
     ],
     "rules": {
-      "vue/no-mutating-props": 0
+      "vue/no-mutating-props": "off"
     },
     "parserOptions": {
       "parser": "babel-eslint",
