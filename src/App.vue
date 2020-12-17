@@ -27,14 +27,6 @@
       @ended="nextSong()"
     />
 
-    <input
-      type="text"
-      class="query-input"
-      v-model="query"
-      placeholder="IA Query"
-    />
-    <textarea class="ocaid-input" v-model="ocaid" placeholder="IA ids" />
-
     <div class="albums-queue">
       <div
         class="albums-queue__album"
@@ -66,9 +58,20 @@
         </button>
       </header>
       <main>
+        <h3>Queue</h3>
+        <!-- <input
+          type="text"
+          class="query-input"
+          v-model="query"
+          placeholder="IA Query"
+        /> -->
+        IA Ids:
+        <br />
+        <textarea class="ocaid-input" v-model="ocaid" placeholder="IA ids" />
+
+        <hr />
         <div>
-          <b>Preferred Track Quality</b>
-          <br />
+          <h3>Preferred Track Quality</h3>
           <small
             >Some tracks have been digitally restored for better quality.</small
           >
@@ -561,9 +564,10 @@ input {
 input.query-input,
 .ocaid-input {
   background: rgba(255, 255, 255, 0.9);
-  padding: 10px;
-  border-radius: 12px;
+  padding: 8px;
+  border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.5);
+  min-height: 200px;;
 }
 
 button {
@@ -579,6 +583,7 @@ input.query-input,
   box-sizing: border-box;
   width: 100%;
   max-width: 600px;
+  white-space: nowrap;
 }
 
 button.play-button {
@@ -625,6 +630,9 @@ button.play-button {
 .settings-drawer > header button {
   width: 100%;
   display: flex;
+}
+.settings-drawer h3 {
+  margin: 0;
 }
 
 .drawer-screen {
