@@ -562,8 +562,10 @@ export default {
         album: song.album,
         artwork: song.artwork,
       });
-      //navigator.mediaSession.setActionHandler('previoustrack', this.prevSong);
-      navigator.mediaSession.setActionHandler('nexttrack', this.nextSong);
+      const atStart = this.activeSongIndex == 0 && this.activeAlbumIndex == 0;
+      const atEnd = this.activeSongIndex == this.activeTrackList.length - 1 && this.activeAlbumIndex == this.albumsQueue.length - 1;
+      navigator.mediaSession.setActionHandler('previoustrack', atStart ? null : this.prevSong);
+      navigator.mediaSession.setActionHandler('nexttrack', atEnd ? null : this.nextSong);
     },
 
     closeDrawers() {
@@ -591,28 +593,51 @@ export default {
       );
     },
 
-    skipToSong(index) {
-      this.activeSongIndex = index;
+    jumpToSong(songIndex, albumIndex=this.activeAlbumIndex) {
+      this.activeAlbumIndex = albumIndex;
+      const album = this.albumsQueue[albumIndex];
+      const tracks = this.filterTrackList(album.tracklist);
+      this.activeSongIndex = songIndex < 0 ? tracks.length + songIndex : songIndex;
       this.loadAndPlay();
     },
 
+    peekSong(songIndex, albumIndex=this.activeAlbumIndex) {
+      const album = this.albumsQueue[albumIndex];
+      if (!album) return;
+      const tracks = this.filterTrackList(album.tracklist);
+      return tracks[songIndex < 0 ? tracks.length + songIndex : songIndex];
+    },
+
     nextSong() {
-      if (this.activeSongIndex + 1 == this.activeTrackList.length) {
+      if (!this.peekSong(this.activeSongIndex + 1)) {
         // out! Try to go to next album
         this.nextAlbum();
       } else {
-        this.skipToSong(this.activeSongIndex + 1);
+        this.jumpToSong(this.activeSongIndex + 1);
+      }
+    },
+    prevSong() {
+      if (this.activeSongIndex == 0) {
+        // out! Try to go to next album
+        this.prevAlbum();
+      } else {
+        this.jumpToSong(this.activeSongIndex - 1);
       }
     },
 
     nextAlbum() {
-      if (this.activeAlbumIndex + 1 == this.albumsQueue.length) {
+      if (!this.peekSong(0, this.activeAlbumIndex + 1)) {
         // got nothing :)
         return;
       }
-      this.activeAlbumIndex++;
-      this.activeSongIndex = 0;
-      this.loadAndPlay();
+      this.jumpToSong(0, this.activeAlbumIndex + 1);
+    },
+    prevAlbum() {
+      if (this.activeAlbumIndex == 0) {
+        // got nothing :)
+        return;
+      }
+      this.jumpToSong(-1, this.activeAlbumIndex - 1);
     },
 
     shuffleBackgroundRecords() {
