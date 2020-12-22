@@ -58,15 +58,68 @@
       <main>
         <section>
           <h3>Queue</h3>
-          <!-- <input
-            type="text"
-            class="query-input"
-            v-model="query"
-            placeholder="IA Query"
-          /> -->
-          IA Ids:
-          <br />
-          <textarea class="ocaid-input" v-model="ocaid" placeholder="IA ids" />
+          <label>
+            <input type="radio" value="ocaids" v-model="queueSource" />
+            Play a specific list of IA identifiers
+            <br />
+            <textarea
+              class="ocaid-input"
+              v-model="ocaid"
+              placeholder="IA ids"
+            />
+          </label>
+          <label>
+            <input type="radio" value="query" v-model="queueSource" />
+            Play results of an IA query (alpha)
+            <input
+              type="text"
+              class="query-input"
+              v-model.lazy="query"
+              placeholder="IA Query"
+            />
+            <label>
+              Sort:
+              <label>
+                <input type="radio" value="" v-model="querySort" />Relevance
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  value="downloads desc"
+                  v-model="querySort"
+                />Views
+              </label>
+              <label>
+                <input type="radio" value="date desc" v-model="querySort" />Date
+                published (newest)</label
+              >
+              <label>
+                <input
+                  type="radio"
+                  value="publicdate desc"
+                  v-model="querySort"
+                />Date archived (newest)</label
+              >
+              <label>
+                <input
+                  type="radio"
+                  value="reviewdate desc"
+                  v-model="querySort"
+                />Recently Reviewed</label
+              >
+              <label>
+                <input
+                  type="radio"
+                  value="avg_rating desc"
+                  v-model="querySort"
+                />Top rated</label
+              >
+              <label>
+                <input type="radio" v-model="querySort" :value="querySort" />
+                Custom: <input type="text" v-model="querySort" />
+              </label>
+            </label>
+          </label>
         </section>
 
         <hr />
@@ -294,7 +347,10 @@ export default {
       activeSongIndex: 0,
       activeAlbumIndex: 0,
 
-      query: "",
+      /** @type {'ocaids' | 'query'} */
+      queueSource: "ocaids",
+      query: "collection:georgeblood",
+      querySort: "",
       ocaid:
         "78_santa-baby_eartha-kitt-p.-springer-javits-t.-springer-henri-rene-and-his-orchestra_gbia0001251a",
 
@@ -377,10 +433,29 @@ export default {
   },
   asyncComputed: {
     async albumsQueue() {
-      if (this.ocaid) {
-        const ocaids = this.ocaid.split(/[,|;\n]/gm);
-        return await Promise.all(ocaids.map(album_from_ocaid));
+      let ocaids = [];
+      if (this.queueSource == "query") {
+        // e.g. https://archive.org/advancedsearch.php?q=christmas+collection%3Ageorgeblood&fl[]=identifier&rows=50&page=1&output=json
+        const results = await fetch(
+          `https://archive.org/advancedsearch.php?${new URLSearchParams({
+            q: this.query,
+            page: 1,
+            rows: 50,
+            output: "json",
+            // only fetch identifier; then fetch the metadata for each
+            "fl[]": "identifier",
+            "sort[]": this.querySort,
+          })}`
+        ).then((r) => r.json());
+        ocaids = results.response.docs.map((d) => d.identifier);
+      } else if (this.queueSource == "ocaids") {
+        if (!this.ocaid) return;
+        ocaids = this.ocaid.split(/[,|;\n]/gm);
+      } else {
+        throw new Error(`Unexpected queueSource: ${this.queueSource}`);
       }
+
+      return await Promise.all(ocaids.map(album_from_ocaid));
     },
     async activeAlbum() {
       let album = this.albumsQueue[this.activeAlbumIndex];
@@ -431,6 +506,12 @@ export default {
     },
   },
   watch: {
+    queueSource() {
+      this.updateToHash();
+    },
+    querySort() {
+      this.updateToHash();
+    },
     query() {
       this.updateToHash();
     },
@@ -445,13 +526,16 @@ export default {
   methods: {
     updateToHash() {
       const hashParams = new URLSearchParams(window.location.hash.slice(1));
-      if (this.query) {
+      if (this.queueSource == "query") {
         hashParams.set("query", this.query);
+        hashParams.set("querySort", this.querySort);
         hashParams.delete("ocaid");
-      }
-      // query takes precedency
-      if (this.ocaid && !this.query) {
-        hashParams.set("ocaid", this.ocaid);
+      } else {
+        if (this.ocaid) {
+          hashParams.set("ocaid", this.ocaid);
+          hashParams.delete("query");
+          hashParams.delete("querySort");
+        }
       }
       window.location.hash = hashParams.toString();
     },
@@ -578,6 +662,9 @@ input.query-input,
   padding: 8px;
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.ocaid-input {
   min-height: 200px;
 }
 
