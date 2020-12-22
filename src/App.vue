@@ -28,14 +28,12 @@
     />
 
     <div class="albums-queue">
-      <div
-        class="albums-queue__album"
+      <AlbumsQueueAlbum
         v-for="album of albumsQueue"
         :key="album.ocaid"
-      >
-        <img class="albums-queue__cover" :src="album.labelSource" />
-        <TrackList :songs="filterTrackList(album.tracklist)" />
-      </div>
+        :album="album"
+        :tracklist="filterTrackList(album.tracklist)"
+      />
     </div>
 
     <div class="right-toolbar">
@@ -172,7 +170,7 @@
 import shuffle from "lodash/shuffle";
 import PointInput from "./components/PointInput";
 import NumberInput from "./components/NumberInput";
-import TrackList from "./components/TrackList";
+import AlbumsQueueAlbum from "./components/AlbumsQueueAlbum";
 import RecordPlayer from "./components/RecordPlayer";
 import SettingsIcon from "./components/icons/SettingsIcon";
 import ChunkyButton from "./components/ChunkyButton";
@@ -275,7 +273,7 @@ export default {
     ChunkyButton,
     PointInput,
     NumberInput,
-    TrackList,
+    AlbumsQueueAlbum,
     RecordPlayer,
     SettingsIcon,
   },
@@ -661,28 +659,5 @@ button.play-button {
 
 audio {
   width: 100%;
-}
-
-.albums-queue__cover {
-  width: 90%;
-  max-width: 400px;
-  border-radius: 2px;
-  overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.3);
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
-  border-radius: 100%;
-}
-
-.albums-queue__album {
-  display: flex;
-  align-items: flex-start;
-  margin: 0 auto;
-  margin-bottom: -100px;
-  max-width: 1000px;
-}
-
-.albums-queue .tracklist {
-  margin-top: 50px;
-  flex: 1;
 }
 </style>
