@@ -1,7 +1,14 @@
 <template>
   <div class="albums-queue-album">
     <img class="albums-queue-album__cover" :src="album.labelSource" />
-    <TrackList :songs="tracklist || album.tracklist" />
+    <div style="flex: 1">
+      <TrackList :songs="tracklist || album.tracklist" />
+      <div class="albums-queue-album__controls">
+        <a :href="`https://archive.org/details/${album.ocaid}`" target="_blank"
+          >Details</a
+        >
+      </div>
+    </div>
   </div>
 </template>
 
@@ -54,13 +61,22 @@ export default {
 
 .albums-queue-album .tracklist {
   margin-top: 50px;
-  flex: 1;
+  margin-bottom: 0;
   background: rgba(255, 255, 255, 0.95);
 }
 
 .albums-queue-album h3 {
   margin: 0;
   border-bottom: 1px solid #aaa;
+}
+
+.albums-queue-album__controls {
+  padding: 0 10px;
+}
+
+.albums-queue-album__controls a {
+  display: inline-block;
+  padding: 5px;
 }
 
 @media (max-width: 650px) {
