@@ -50,181 +50,193 @@
       </ChunkyButton>
     </div>
 
-    <div v-if="drawerOpen" class="drawer-screen" @click="closeDrawers" />
+    <transition name="fade">
+      <div v-if="drawerOpen" class="drawer-screen" @click="closeDrawers" />
+    </transition>
 
-    <div v-if="settingsDrawerOpen" class="settings-drawer">
-      <header>
-        <button @click="settingsDrawerOpen = false">
-          «
-          <h2>Settings</h2>
-        </button>
-      </header>
-      <main>
-        <section>
-          <h3>Queue</h3>
-          <label>
-            <input type="radio" value="ocaids" v-model="queueSource" />
-            Play a specific list of IA identifiers
-            <br />
-            <textarea
-              class="ocaid-input"
-              v-model="ocaid"
-              placeholder="IA ids"
-            />
-          </label>
-          <label>
-            <input type="radio" value="query" v-model="queueSource" />
-            Play results of an IA query (alpha)
-            <input
-              type="text"
-              class="query-input"
-              v-model.lazy="query"
-              placeholder="IA Query"
-            />
+    <transition name="slide-fade">
+      <div v-if="settingsDrawerOpen" class="settings-drawer">
+        <header>
+          <button @click="settingsDrawerOpen = false">
+            «
+            <h2>Settings</h2>
+          </button>
+        </header>
+        <main>
+          <section>
+            <h3>Queue</h3>
             <label>
-              Sort:
+              <input type="radio" value="ocaids" v-model="queueSource" />
+              Play a specific list of IA identifiers
+              <br />
+              <textarea
+                class="ocaid-input"
+                v-model="ocaid"
+                placeholder="IA ids"
+              />
+            </label>
+            <label>
+              <input type="radio" value="query" v-model="queueSource" />
+              Play results of an IA query (alpha)
+              <input
+                type="text"
+                class="query-input"
+                v-model.lazy="query"
+                placeholder="IA Query"
+              />
               <label>
-                <input type="radio" value="" v-model="querySort" />Relevance
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  value="downloads desc"
-                  v-model="querySort"
-                />Views
-              </label>
-              <label>
-                <input type="radio" value="date desc" v-model="querySort" />Date
-                published (newest)</label
-              >
-              <label>
-                <input
-                  type="radio"
-                  value="publicdate desc"
-                  v-model="querySort"
-                />Date archived (newest)</label
-              >
-              <label>
-                <input
-                  type="radio"
-                  value="reviewdate desc"
-                  v-model="querySort"
-                />Recently Reviewed</label
-              >
-              <label>
-                <input
-                  type="radio"
-                  value="avg_rating desc"
-                  v-model="querySort"
-                />Top rated</label
-              >
-              <label>
-                <input type="radio" v-model="querySort" :value="querySort" />
-                Custom: <input type="text" v-model="querySort" />
+                Sort:
+                <label>
+                  <input type="radio" value="" v-model="querySort" />Relevance
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    value="downloads desc"
+                    v-model="querySort"
+                  />Views
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    value="date desc"
+                    v-model="querySort"
+                  />Date published (newest)</label
+                >
+                <label>
+                  <input
+                    type="radio"
+                    value="publicdate desc"
+                    v-model="querySort"
+                  />Date archived (newest)</label
+                >
+                <label>
+                  <input
+                    type="radio"
+                    value="reviewdate desc"
+                    v-model="querySort"
+                  />Recently Reviewed</label
+                >
+                <label>
+                  <input
+                    type="radio"
+                    value="avg_rating desc"
+                    v-model="querySort"
+                  />Top rated</label
+                >
+                <label>
+                  <input type="radio" v-model="querySort" :value="querySort" />
+                  Custom: <input type="text" v-model="querySort" />
+                </label>
               </label>
             </label>
-          </label>
-        </section>
+          </section>
 
-        <hr />
-        <section>
-          <h3>Preferred Track Quality</h3>
-          <small
-            >Some tracks have been digitally restored for better quality.</small
-          >
-          <br />
-          <label>
-            <input type="radio" v-model="preferredQuality" value="restored" />
-            Restored
-          </label>
-          <br />
-          <label>
-            <input type="radio" v-model="preferredQuality" value="unrestored" />
-            Unrestored
-          </label>
-          <br />
-          <label>
-            <input type="radio" v-model="preferredQuality" value="both" />
-            <div style="display: inline-block; vertical-align: top">
-              Both
-              <br />
-              <small>May result in songs appearing duplicated</small>
-            </div>
-          </label>
-        </section>
-
-        <hr />
-        <section>
-          <h3>About</h3>
-          A little record player. Powered by
-          <a href="https://archive.org">Internet Archive</a>'s record
-          collection. The beautiful record player video is
-          <a
-            href="https://pixabay.com/videos/record-player-vinyl-retro-record-38392/"
-            >Record Player 38392</a
-          >
-          by
-          <a href="https://pixabay.com/users/matthias_groeneveld-4535957"
-            >Matthias Groeneveld</a
-          >. The code is available on GitHub:
-          <a href="https://github.com/cdrini/rplayer"
-            >github.com/cdrini/rplayer</a
-          >.
-        </section>
-
-        <hr />
-        <details>
-          <summary>Dev Controls</summary>
-
-          <label>
-            <input type="checkbox" v-model="showRegions" />
-            Show pin dots
-          </label>
-
-          <label>
-            Pin Position in video:
-            <PointInput :point="videoRegions.pin" />
-          </label>
-
-          <br />
-
-          <label>
-            Pin Position in label image:
+          <hr />
+          <section>
+            <h3>Preferred Track Quality</h3>
+            <small
+              >Some tracks have been digitally restored for better
+              quality.</small
+            >
             <br />
-            <PointInput :point="labelRegions.pin" />
-          </label>
+            <label>
+              <input type="radio" v-model="preferredQuality" value="restored" />
+              Restored
+            </label>
+            <br />
+            <label>
+              <input
+                type="radio"
+                v-model="preferredQuality"
+                value="unrestored"
+              />
+              Unrestored
+            </label>
+            <br />
+            <label>
+              <input type="radio" v-model="preferredQuality" value="both" />
+              <div style="display: inline-block; vertical-align: top">
+                Both
+                <br />
+                <small>May result in songs appearing duplicated</small>
+              </div>
+            </label>
+          </section>
 
-          <br />
+          <hr />
+          <section>
+            <h3>About</h3>
+            A little record player. Powered by
+            <a href="https://archive.org">Internet Archive</a>'s record
+            collection. The beautiful record player video is
+            <a
+              href="https://pixabay.com/videos/record-player-vinyl-retro-record-38392/"
+              >Record Player 38392</a
+            >
+            by
+            <a href="https://pixabay.com/users/matthias_groeneveld-4535957"
+              >Matthias Groeneveld</a
+            >. The code is available on GitHub:
+            <a href="https://github.com/cdrini/rplayer"
+              >github.com/cdrini/rplayer</a
+            >.
+          </section>
 
-          <label>
-            Label Opacity
-            <input
-              type="range"
-              step="0.01"
-              min="0"
-              :max="1"
-              v-model="labelPosition.opacity"
-            />
-          </label>
-          <br />
+          <hr />
+          <details>
+            <summary>Dev Controls</summary>
 
-          <label>
-            RPM
-            <NumberInput :step="1" :min="1" :max="100" v-model="rpm" />
-          </label>
-          <br />
-          <label>
-            Label Clip
-            <NumberInput
-              :step="1"
-              :min="0"
-              :max="100"
-              v-model="labelPosition.clipPadding"
-            />
-          </label>
-        </details>
-      </main>
-    </div>
+            <label>
+              <input type="checkbox" v-model="showRegions" />
+              Show pin dots
+            </label>
+
+            <label>
+              Pin Position in video:
+              <PointInput :point="videoRegions.pin" />
+            </label>
+
+            <br />
+
+            <label>
+              Pin Position in label image:
+              <br />
+              <PointInput :point="labelRegions.pin" />
+            </label>
+
+            <br />
+
+            <label>
+              Label Opacity
+              <input
+                type="range"
+                step="0.01"
+                min="0"
+                :max="1"
+                v-model="labelPosition.opacity"
+              />
+            </label>
+            <br />
+
+            <label>
+              RPM
+              <NumberInput :step="1" :min="1" :max="100" v-model="rpm" />
+            </label>
+            <br />
+            <label>
+              Label Clip
+              <NumberInput
+                :step="1"
+                :min="0"
+                :max="100"
+                v-model="labelPosition.clipPadding"
+              />
+            </label>
+          </details>
+        </main>
+      </div>
+    </transition>
 
     <div class="center-toolbar">
       <ChunkyButton v-if="!playing" @click="$refs.aplayer.play()">
@@ -304,8 +316,15 @@ function extract_tracklist(ocaid, metadata) {
         track: get_track(orig),
         album: metadata.metadata.title,
         artwork: [
-          { src: `https://archive.org/download/${ocaid}/${ocaid}_itemimage.jpg`, type: 'image/jpg', },
-          { src: `https://archive.org/download/${ocaid}/__ia_thumb.jpg`, sizes: '180x180', type: 'image/jpg', }
+          {
+            src: `https://archive.org/download/${ocaid}/${ocaid}_itemimage.jpg`,
+            type: "image/jpg",
+          },
+          {
+            src: `https://archive.org/download/${ocaid}/__ia_thumb.jpg`,
+            sizes: "180x180",
+            type: "image/jpg",
+          },
         ],
         duration: parseFloat(orig.length),
         original: orig,
@@ -567,9 +586,17 @@ export default {
         artwork: song.artwork,
       });
       const atStart = this.activeSongIndex == 0 && this.activeAlbumIndex == 0;
-      const atEnd = this.activeSongIndex == this.activeTrackList.length - 1 && this.activeAlbumIndex == this.albumsQueue.length - 1;
-      navigator.mediaSession.setActionHandler('previoustrack', atStart ? null : this.prevSong);
-      navigator.mediaSession.setActionHandler('nexttrack', atEnd ? null : this.nextSong);
+      const atEnd =
+        this.activeSongIndex == this.activeTrackList.length - 1 &&
+        this.activeAlbumIndex == this.albumsQueue.length - 1;
+      navigator.mediaSession.setActionHandler(
+        "previoustrack",
+        atStart ? null : this.prevSong
+      );
+      navigator.mediaSession.setActionHandler(
+        "nexttrack",
+        atEnd ? null : this.nextSong
+      );
     },
 
     closeDrawers() {
@@ -597,15 +624,16 @@ export default {
       );
     },
 
-    jumpToSong(songIndex, albumIndex=this.activeAlbumIndex) {
+    jumpToSong(songIndex, albumIndex = this.activeAlbumIndex) {
       this.activeAlbumIndex = albumIndex;
       const album = this.albumsQueue[albumIndex];
       const tracks = this.filterTrackList(album.tracklist);
-      this.activeSongIndex = songIndex < 0 ? tracks.length + songIndex : songIndex;
+      this.activeSongIndex =
+        songIndex < 0 ? tracks.length + songIndex : songIndex;
       this.loadAndPlay();
     },
 
-    peekSong(songIndex, albumIndex=this.activeAlbumIndex) {
+    peekSong(songIndex, albumIndex = this.activeAlbumIndex) {
       const album = this.albumsQueue[albumIndex];
       if (!album) return;
       const tracks = this.filterTrackList(album.tracklist);
@@ -710,6 +738,10 @@ input.query-input,
   padding: 8px;
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 600px;
+  white-space: pre;
 }
 
 .ocaid-input {
@@ -720,16 +752,8 @@ button {
   cursor: pointer;
 }
 
-:is(button):hover {
+button:hover {
   opacity: 1;
-}
-
-input.query-input,
-.ocaid-input {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 600px;
-  white-space: pre;
 }
 
 button.play-button {
@@ -807,5 +831,38 @@ button.play-button {
 
 audio {
   width: 100%;
+}
+
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition-property: transform, opacity;
+  transition-duration: 0.2s;
+}
+.slide-fade-enter-active {
+  transition-timing-function: ease-in;
+}
+.slide-fade-leave-active {
+  transition-timing-function: ease-out;
+}
+.slide-fade-enter,
+.slide-fade-leave-to {
+  transform: translateX(10px);
+  opacity: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition-property: opacity;
+  transition-duration: 0.2s;
+}
+.fade-enter-active {
+  transition-timing-function: ease-in;
+}
+.fade-leave-active {
+  transition-timing-function: ease-out;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
