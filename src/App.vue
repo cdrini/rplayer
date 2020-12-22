@@ -29,11 +29,15 @@
 
     <div class="albums-queue">
       <AlbumsQueueAlbum
-        v-for="album of albumsQueue"
+        v-for="(album, albumIndex) of albumsQueue"
         :key="album.ocaid"
         :album="album"
         :tracklist="filterTrackList(album.tracklist)"
-      />
+      >
+        <template #post-controls>
+          <button @click="jumpToSong(0, albumIndex)">Play</button>
+        </template>
+      </AlbumsQueueAlbum>
     </div>
 
     <div class="right-toolbar">

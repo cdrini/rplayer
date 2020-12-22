@@ -7,6 +7,7 @@
         <a :href="`https://archive.org/details/${album.ocaid}`" target="_blank"
           >Details</a
         >
+        <slot name="post-controls" />
       </div>
     </div>
   </div>
