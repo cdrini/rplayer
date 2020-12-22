@@ -28,7 +28,6 @@ export default {
   display: flex;
   align-items: flex-start;
   margin: 0 auto;
-  margin-bottom: -100px;
   max-width: 1000px;
 }
 
@@ -44,15 +43,30 @@ export default {
   border: 1px solid rgba(0, 0, 0, 0.3);
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
   border-radius: 100%;
+  margin-bottom: -100px;
+  transition: transform 0.2s;
+}
+
+.albums-queue-album__cover:hover {
+  z-index: 100;
+  transform: scale(1.01);
 }
 
 .albums-queue-album .tracklist {
   margin-top: 50px;
   flex: 1;
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .albums-queue-album h3 {
   margin: 0;
   border-bottom: 1px solid #aaa;
+}
+
+@media (max-width: 650px) {
+  .albums-queue-album {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 </style>
