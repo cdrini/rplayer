@@ -56,19 +56,21 @@
         </button>
       </header>
       <main>
-        <h3>Queue</h3>
-        <!-- <input
-          type="text"
-          class="query-input"
-          v-model="query"
-          placeholder="IA Query"
-        /> -->
-        IA Ids:
-        <br />
-        <textarea class="ocaid-input" v-model="ocaid" placeholder="IA ids" />
+        <section>
+          <h3>Queue</h3>
+          <!-- <input
+            type="text"
+            class="query-input"
+            v-model="query"
+            placeholder="IA Query"
+          /> -->
+          IA Ids:
+          <br />
+          <textarea class="ocaid-input" v-model="ocaid" placeholder="IA ids" />
+        </section>
 
         <hr />
-        <div>
+        <section>
           <h3>Preferred Track Quality</h3>
           <small
             >Some tracks have been digitally restored for better quality.</small
@@ -92,7 +94,26 @@
               <small>May result in songs appearing duplicated</small>
             </div>
           </label>
-        </div>
+        </section>
+
+        <hr />
+        <section>
+          <h3>About</h3>
+          A little record player. Powered by
+          <a href="https://archive.org">Internet Archive</a>'s record
+          collection. The beautiful record player video is
+          <a
+            href="https://pixabay.com/videos/record-player-vinyl-retro-record-38392/"
+            >Record Player 38392</a
+          >
+          by
+          <a href="https://pixabay.com/users/matthias_groeneveld-4535957"
+            >Matthias Groeneveld</a
+          >. The code is available on GitHub:
+          <a href="https://github.com/cdrini/rplayer"
+            >github.com/cdrini/rplayer</a
+          >.
+        </section>
 
         <hr />
         <details>
@@ -153,16 +174,6 @@
         <template #label>Play</template>
       </ChunkyButton>
     </div>
-
-    <br />
-    Video Source:
-    <a href="https://pixabay.com/videos/record-player-vinyl-retro-record-38392/"
-      >Record Player 38392</a
-    >
-    by
-    <a href="https://pixabay.com/users/matthias_groeneveld-4535957"
-      >Matthias Groeneveld</a
-    >
   </div>
 </template>
 
@@ -526,7 +537,9 @@ body {
   overflow-x: hidden;
 }
 
-body { overflow: hidden; }
+body {
+  overflow: hidden;
+}
 #app {
   font-family: "Roboto", "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -565,7 +578,7 @@ input.query-input,
   padding: 8px;
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.5);
-  min-height: 200px;;
+  min-height: 200px;
 }
 
 button {
