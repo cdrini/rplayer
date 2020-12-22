@@ -302,7 +302,7 @@ function extract_tracklist(ocaid, metadata) {
         src: `https://archive.org/download/${ocaid}/${mp3.name}`,
         artist: get_artist(orig),
         track: get_track(orig),
-        album: orig.album,
+        album: metadata.metadata.title,
         artwork: [
           { src: `https://archive.org/download/${ocaid}/${ocaid}_itemimage.jpg`, type: 'image/jpg', },
           { src: `https://archive.org/download/${ocaid}/__ia_thumb.jpg`, sizes: '180x180', type: 'image/jpg', }
