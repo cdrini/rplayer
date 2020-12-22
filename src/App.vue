@@ -256,9 +256,13 @@ import SettingsIcon from "./components/icons/SettingsIcon";
 import ChunkyButton from "./components/ChunkyButton";
 import Vue from "vue";
 import AsyncComputed from "vue-async-computed";
+import {findRecordLabelPosition} from './utils/imageUtils';
 
 Vue.use(AsyncComputed);
 
+/**
+ * @param {string} ocaid
+ */
 function extract_tracklist(ocaid, metadata) {
   const get_original = (file) =>
     file.source === "original"
@@ -346,15 +350,22 @@ function extract_tracklist(ocaid, metadata) {
   return tracklist;
 }
 
+/**
+ * @param {string} ocaid
+ */
 async function album_from_ocaid(ocaid) {
   const metadata = await fetch(
     `https://archive.org/metadata/${ocaid}`
   ).then((r) => r.json());
+  const thumb = `https://archive.org/download/${ocaid}/__ia_thumb.jpg`;
+  const labelPosition = await findRecordLabelPosition(thumb);
   return {
     ocaid,
     metadata,
     tracklist: extract_tracklist(ocaid, metadata),
     labelSource: `https://archive.org/download/${ocaid}/${ocaid}_itemimage.jpg`,
+    labelThumbSource: thumb,
+    labelPosition,
   };
 }
 
@@ -493,6 +504,25 @@ export default {
       }
       return album;
     },
+    async labelCoords() {
+      // we position it so that the two pins are in the same place on the canvas
+      const videoPin = this.videoUnitCoordToCanvasCoord(this.videoRegions.pin);
+      const labelPin = {
+        x: (this.activeAlbum ? this.activeAlbum.labelPosition.center.x : this.labelRegions.pin.x) * this.labelPosition.width,
+        y: (this.activeAlbum ? this.activeAlbum.labelPosition.center.y : this.labelRegions.pin.y) * this.labelPosition.height,
+      };
+      const labelOffset = {
+        x: videoPin.x - labelPin.x,
+        y: videoPin.y - labelPin.y,
+      };
+
+      return Object.assign({}, this.labelPosition, labelOffset, {
+        cx: labelOffset.x + labelPin.x,
+        cy: labelOffset.y + labelPin.y,
+        rx: this.activeAlbum ? (this.activeAlbum.labelPosition.radius * this.labelPosition.width + 5) : (this.labelPosition.width / 2 - this.labelPosition.clipPadding),
+        ry: this.activeAlbum ? (this.activeAlbum.labelPosition.radius * this.labelPosition.width + 5) : (this.labelPosition.height / 2 - this.labelPosition.clipPadding),
+      });
+    },
   },
   computed: {
     activeTrackList() {
@@ -511,25 +541,6 @@ export default {
     },
     labelSource() {
       return this.activeAlbum?.labelSource;
-    },
-    labelCoords() {
-      // we position it so that the two pins are in the same place on the canvas
-      const videoPin = this.videoUnitCoordToCanvasCoord(this.videoRegions.pin);
-      const labelPin = {
-        x: this.labelRegions.pin.x * this.labelPosition.width,
-        y: this.labelRegions.pin.y * this.labelPosition.height,
-      };
-      const labelOffset = {
-        x: videoPin.x - labelPin.x,
-        y: videoPin.y - labelPin.y,
-      };
-
-      return Object.assign({}, this.labelPosition, labelOffset, {
-        cx: labelOffset.x + labelPin.x,
-        cy: labelOffset.y + labelPin.y,
-        rx: this.labelPosition.width / 2 - this.labelPosition.clipPadding,
-        ry: this.labelPosition.height / 2 - this.labelPosition.clipPadding,
-      });
     },
   },
   watch: {
