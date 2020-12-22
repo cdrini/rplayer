@@ -299,6 +299,10 @@ function extract_tracklist(ocaid, metadata) {
         artist: get_artist(orig),
         track: get_track(orig),
         album: orig.album,
+        artwork: [
+          { src: `https://archive.org/download/${ocaid}/${ocaid}_itemimage.jpg`, type: 'image/jpg', },
+          { src: `https://archive.org/download/${ocaid}/__ia_thumb.jpg`, sizes: '180x180', type: 'image/jpg', }
+        ],
         duration: parseFloat(orig.length),
         original: orig,
       };
@@ -518,6 +522,9 @@ export default {
     ocaid() {
       this.updateToHash();
     },
+    activeSong(song) {
+      this.updateMediaSession(song);
+    },
     playing(newVal) {
       if (newVal) this.$refs.recordPlayer?.play();
       else this.$refs.recordPlayer?.pause();
@@ -545,6 +552,18 @@ export default {
         this.ocaid = hashParams.get("ocaid");
       if (hashParams.get("query") && hashParams.get("query") !== this.query)
         this.query = hashParams.get("query");
+    },
+
+    updateMediaSession(song) {
+      if (!window.MediaMetadata) return;
+      navigator.mediaSession.metadata = new window.MediaMetadata({
+        title: song.title,
+        artist: song.artist,
+        album: song.album,
+        artwork: song.artwork,
+      });
+      //navigator.mediaSession.setActionHandler('previoustrack', this.prevSong);
+      navigator.mediaSession.setActionHandler('nexttrack', this.nextSong);
     },
 
     closeDrawers() {
