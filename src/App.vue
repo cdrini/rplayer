@@ -308,7 +308,11 @@ function extract_tracklist(ocaid, metadata) {
     .filter((f) => get_original(f))
     .forEach((f) => {
       const orig = get_original(f);
-      originals.find((o) => o.name == orig.name).deriveds.push(f);
+      const original = originals.find((o) => o.name == orig.name);
+      // Some PDFs/JSON can have a chain of deriveds!
+      if (original) {
+        original.deriveds.push(f);
+      }
     });
 
   const tracklist = originals
