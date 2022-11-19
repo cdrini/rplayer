@@ -375,6 +375,30 @@ async function album_from_ocaid(ocaid) {
   };
 }
 
+function updateToHash(data) {
+  const hashParams = new URLSearchParams(window.location.hash.slice(1));
+  if (data.queueSource == "query") {
+    hashParams.set("query", data.query);
+    hashParams.set("querySort", data.querySort);
+    hashParams.delete("ocaid");
+  } else {
+    if (data.ocaid) {
+      hashParams.set("ocaid", data.ocaid);
+      hashParams.delete("query");
+      hashParams.delete("querySort");
+    }
+  }
+  window.location.hash = hashParams.toString();
+}
+
+function updateFromHash(data) {
+  const hashParams = new URLSearchParams(window.location.hash.slice(1));
+  if (hashParams.get("ocaid") && hashParams.get("ocaid") !== data.ocaid)
+    data.ocaid = hashParams.get("ocaid");
+  if (hashParams.get("query") && hashParams.get("query") !== data.query)
+    data.query = hashParams.get("query");
+}
+
 export default {
   name: "App",
   components: {
@@ -386,7 +410,7 @@ export default {
     SettingsIcon,
   },
   data() {
-    return {
+    const data = {
       // Queue stuff
       activeSongIndex: 0,
       activeAlbumIndex: 0,
@@ -467,6 +491,9 @@ export default {
         "78_the-woodpecker-song_mark-warnow-and-his-orchestra-arthur-johnston-sam-coslow-your-s_gbia0082964",
       ],
     };
+
+    updateFromHash(data);
+    return data;
   },
   mounted() {
     window.addEventListener("hashchange", this.updateFromHash, false);
@@ -573,26 +600,10 @@ export default {
   },
   methods: {
     updateToHash() {
-      const hashParams = new URLSearchParams(window.location.hash.slice(1));
-      if (this.queueSource == "query") {
-        hashParams.set("query", this.query);
-        hashParams.set("querySort", this.querySort);
-        hashParams.delete("ocaid");
-      } else {
-        if (this.ocaid) {
-          hashParams.set("ocaid", this.ocaid);
-          hashParams.delete("query");
-          hashParams.delete("querySort");
-        }
-      }
-      window.location.hash = hashParams.toString();
+      return updateToHash(this);
     },
     updateFromHash() {
-      const hashParams = new URLSearchParams(window.location.hash.slice(1));
-      if (hashParams.get("ocaid") && hashParams.get("ocaid") !== this.ocaid)
-        this.ocaid = hashParams.get("ocaid");
-      if (hashParams.get("query") && hashParams.get("query") !== this.query)
-        this.query = hashParams.get("query");
+      return updateFromHash(this);
     },
 
     updateMediaSession(song) {
