@@ -14,6 +14,7 @@
       :backgroundRecords="backgroundRecords"
       :showRegions="showRegions"
       :cycleLength="cycleLength"
+      :minLabelWidth="minLabelWidth"
       @play="$refs.aplayer.play()"
       @pause="$refs.aplayer.pause()"
     />
@@ -186,6 +187,11 @@
           <hr />
           <details>
             <summary>Dev Controls</summary>
+
+            <label>
+              Min Label Width
+              <NumberInput :step="1" :min="0" :max="500" v-model="minLabelWidth" />
+            </label>
 
             <label>
               <input type="checkbox" v-model="showRegions" />
@@ -404,6 +410,7 @@ export default {
 
       rpm: 33,
 
+      minLabelWidth: 176,
       videoRegions: {
         pin: {
           x: 0.453,

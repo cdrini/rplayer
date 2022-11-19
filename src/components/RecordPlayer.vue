@@ -310,6 +310,7 @@
               labelCoords.cx + 'px',
               labelCoords.cy + 'px',
             ].join(' '),
+            scale: (labelCoords.rx * 2) < minLabelWidth ? (minLabelWidth / (labelCoords.rx * 2)) : 1,
           }"
         />
       </g>
@@ -364,6 +365,10 @@ export default {
     },
     labelSource: {
       type: String,
+      require: true,
+    },
+    minLabelWidth: {
+      type: Number,
       require: true,
     },
 
