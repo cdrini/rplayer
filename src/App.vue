@@ -383,7 +383,7 @@ function updateToHash(data) {
   const hashParams = new URLSearchParams(window.location.hash.slice(1));
   if (data.queueSource == "query") {
     hashParams.set("query", data.query);
-    hashParams.set("querySort", data.querySort);
+    if (data.querySort) hashParams.set("querySort", data.querySort);
     hashParams.delete("ocaid");
   } else {
     if (data.ocaid) {
@@ -401,6 +401,8 @@ function updateFromHash(data) {
     data.ocaid = hashParams.get("ocaid");
   if (hashParams.get("query") && hashParams.get("query") !== data.query)
     data.query = hashParams.get("query");
+  if (hashParams.has("ocaid")) data.queueSource = 'ocaids';
+  else if (hashParams.has("query")) data.queueSource = 'query';
 }
 
 export default {
