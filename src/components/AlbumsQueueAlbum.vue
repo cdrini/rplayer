@@ -1,6 +1,6 @@
 <template>
   <div class="albums-queue-album">
-    <img class="albums-queue-album__cover" :src="album.labelSource" />
+    <img class="albums-queue-album__cover" :src="album.labelSource" loading="lazy" />
     <div style="flex: 1">
       <TrackList :songs="tracklist || album.tracklist" />
       <div class="albums-queue-album__controls">
