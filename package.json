@@ -1,5 +1,6 @@
 {
   "name": "rplayer",
+  "description": "A record player",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,27 +9,22 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@vue/cli-plugin-babel": "^4.5.9",
+    "@babel/eslint-parser": "^7.24.7",
+    "@vue/cli-plugin-babel": "^5.0.8",
     "d3-color": "^2.0.0",
     "lodash": "4.17.20",
-    "vue": "^2.6.12",
+    "vue": "^2.7.16",
     "vue-async-computed": "3.9.0"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-optional-chaining": "^7.12.7",
-    "@vue/cli-plugin-eslint": "^4.5.9",
-    "@vue/cli-service": "^4.5.9",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^7.15.0",
-    "eslint-plugin-vue": "^7.3.0",
-    "vue-template-compiler": "^2.6.12",
-    "webpack": "^4.44.2"
+    "@vue/cli-plugin-eslint": "^5.0.8",
+    "@vue/cli-service": "^5.0.8",
+    "eslint": "^8.57.0",
+    "eslint-plugin-vue": "^9.26.0",
+    "vue-template-compiler": "^2.7.16",
+    "webpack": "^5.92.0"
   },
-  "babel": {
-    "plugins": [
-      "@babel/plugin-proposal-optional-chaining"
-    ]
-  },
+  "babel": {},
   "eslintConfig": {
     "root": true,
     "env": {
@@ -42,7 +38,7 @@
       "vue/no-mutating-props": "off"
     },
     "parserOptions": {
-      "parser": "babel-eslint",
+      "parser": "@babel/eslint-parser",
       "ecmaVersion": 2020,
       "sourceType": "module"
     }
@@ -61,6 +57,5 @@
     "vue",
     "vuejs",
     "starter"
-  ],
-  "description": "Vue.js example starter project"
+  ]
 }
