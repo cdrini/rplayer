@@ -367,13 +367,13 @@ async function album_from_ocaid(ocaid) {
   const metadata = await fetch(
     `https://archive.org/metadata/${ocaid}`
   ).then((r) => r.json());
-  const thumb = `https://archive.org/download/${ocaid}/__ia_thumb.jpg`;
+  const thumb = `https://archive.org/cors/${ocaid}/__ia_thumb.jpg`;
   const labelPosition = await findRecordLabelPosition(thumb);
   return {
     ocaid,
     metadata,
     tracklist: extract_tracklist(ocaid, metadata),
-    labelSource: `https://archive.org/download/${ocaid}/${ocaid}_itemimage.jpg`,
+    labelSource: `https://archive.org/cors/${ocaid}/${ocaid}_itemimage.jpg`,
     labelThumbSource: thumb,
     labelPosition,
   };
@@ -426,7 +426,7 @@ export default {
       query: "collection:georgeblood",
       querySort: "",
       ocaid:
-        "78_santa-baby_eartha-kitt-p.-springer-javits-t.-springer-henri-rene-and-his-orchestra_gbia0001251a",
+        "78_pomp-and-circumstance_chicago-symphony-orchestra-sir-edward-elgar-frederick-stock_gbia7035420b",
 
       /** @type {'restored' | 'unrestored' | 'both'} */
       preferredQuality: "restored",
