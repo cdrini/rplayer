@@ -1,6 +1,11 @@
 <template>
   <div class="albums-queue-album">
-    <img class="albums-queue-album__cover" :src="album.labelSource" loading="lazy" />
+    <img
+      class="albums-queue-album__cover"
+      :class="{'albums-queue-album__cover--label': !album.hasCover}"
+      :src="album.labelSource"
+      loading="lazy"
+    />
     <div style="flex: 1">
       <TrackList :songs="tracklist || album.tracklist" />
       <div class="albums-queue-album__controls">
@@ -46,13 +51,16 @@ export default {
 .albums-queue-album__cover {
   width: 90%;
   max-width: 400px;
-  border-radius: 2px;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.3);
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
-  border-radius: 100%;
+  border-radius: 10px;
   margin-bottom: -100px;
   transition: transform 0.2s;
+}
+
+.albums-queue-album__cover--label {
+  border-radius: 100%;
 }
 
 .albums-queue-album__cover:hover {

@@ -22,7 +22,7 @@
     <audio
       controls
       ref="aplayer"
-      :src="activeSong.src"
+      :src="activeSong?.src"
       @play="playing = true"
       @pause="playing = false"
       @ended="nextSong()"
@@ -253,6 +253,7 @@
 </template>
 
 <script>
+import chunk from "lodash/chunk";
 import shuffle from "lodash/shuffle";
 import PointInput from "./components/PointInput";
 import NumberInput from "./components/NumberInput";
@@ -357,6 +358,36 @@ function extract_tracklist(ocaid, metadata) {
       // otherwise all false (show twice)
     }
   });
+
+  // We want to see if we can get the record covers.
+
+  // Test:
+  // let n be the number of tracks.
+  // If (1) a _jp2.zip file exists and (2) it has n + 1 images (1 for the cover),
+  // then assume everything maps.
+  // Examples:
+  // - 78_pomp-and-circumstance_chicago-symphony-orchestra-sir-edward-elgar-frederick-stock_gbia7035420b
+  const track_count = Math.max(
+    tracklist.filter(t => t.quality == 'restored').length,
+    tracklist.filter(t => t.quality == 'unrestored').length,
+  );
+  if (track_count > 2) {
+    const jp2_zip_name = `${ocaid}_jp2.zip`;
+    const file_metadata = metadata.files.find(f => f.name == jp2_zip_name);
+    if (file_metadata) {
+      const jp2_count = parseFloat(file_metadata.filecount);
+      // If +1, only has cover at start
+      // If +2, also has back cover at end, but the offset is still the same
+      if (jp2_count >= track_count + 1) {
+        // We have a cover and a record label for each track listing!
+        tracklist.forEach((track, i) => {
+          const src = `https://archive.org/cors/${ocaid}/${ocaid}_jp2.zip/${ocaid}_jp2%2F${ocaid}_${(i+1).toString().padStart(4, '0')}.jp2&ext=jpg`
+          track.labelSource = src + '&reduce=2',
+          track.labelThumbSource = src + '&reduce=4';
+        });
+      }
+    }
+  }
   return tracklist;
 }
 
@@ -369,13 +400,14 @@ async function album_from_ocaid(ocaid) {
   ).then((r) => r.json());
   const thumb = `https://archive.org/cors/${ocaid}/__ia_thumb.jpg`;
   const labelPosition = await findRecordLabelPosition(thumb);
+  const tracklist = extract_tracklist(ocaid, metadata);
   return {
     ocaid,
     metadata,
-    tracklist: extract_tracklist(ocaid, metadata),
-    labelSource: `https://archive.org/cors/${ocaid}/${ocaid}_itemimage.jpg`,
-    labelThumbSource: thumb,
+    tracklist,
+    labelSource: `https://archive.org/download/${ocaid}/${ocaid}_itemimage.jpg`,
     labelPosition,
+    hasCover: Boolean(tracklist[0]?.labelSource),
   };
 }
 
@@ -518,7 +550,7 @@ export default {
           `https://archive.org/advancedsearch.php?${new URLSearchParams({
             q: this.query,
             page: 1,
-            rows: 50,
+            rows: 25,
             output: "json",
             // only fetch identifier; then fetch the metadata for each
             "fl[]": "identifier",
@@ -533,23 +565,24 @@ export default {
         throw new Error(`Unexpected queueSource: ${this.queueSource}`);
       }
 
-      return await Promise.all(ocaids.map(album_from_ocaid));
+      const chunks = chunk(ocaids, 5);
+      let result = [];
+      for (const ch of chunks) {
+        result = result.concat(await Promise.all(ch.map(album_from_ocaid)));
+      }
+
+      return result;
     },
     async activeAlbum() {
-      let album = this.albumsQueue[this.activeAlbumIndex];
-      if (!album.metadata) {
-        album = this.albumsQueue[
-          this.activeAlbumIndex
-        ] = await album_from_ocaid(album.ocaid);
-      }
-      return album;
+      return this.albumsQueue?.[this.activeAlbumIndex];
     },
     async labelCoords() {
       // we position it so that the two pins are in the same place on the canvas
       const videoPin = this.videoUnitCoordToCanvasCoord(this.videoRegions.pin);
+      const curLabelPosition = this.activeSong?.labelPosition || this.activeAlbum?.labelPosition;
       const labelPin = {
-        x: (this.activeAlbum ? this.activeAlbum.labelPosition.center.x : this.labelRegions.pin.x) * this.labelPosition.width,
-        y: (this.activeAlbum ? this.activeAlbum.labelPosition.center.y : this.labelRegions.pin.y) * this.labelPosition.height,
+        x: (curLabelPosition ? curLabelPosition.center.x : this.labelRegions.pin.x) * this.labelPosition.width,
+        y: (curLabelPosition ? curLabelPosition.center.y : this.labelRegions.pin.y) * this.labelPosition.height,
       };
       const labelOffset = {
         x: videoPin.x - labelPin.x,
@@ -559,8 +592,8 @@ export default {
       return Object.assign({}, this.labelPosition, labelOffset, {
         cx: labelOffset.x + labelPin.x,
         cy: labelOffset.y + labelPin.y,
-        rx: this.activeAlbum ? (this.activeAlbum.labelPosition.radius * this.labelPosition.width + 5) : (this.labelPosition.width / 2 - this.labelPosition.clipPadding),
-        ry: this.activeAlbum ? (this.activeAlbum.labelPosition.radius * this.labelPosition.width + 5) : (this.labelPosition.height / 2 - this.labelPosition.clipPadding),
+        rx: curLabelPosition ? (curLabelPosition.radius * this.labelPosition.width + 5) : (this.labelPosition.width / 2 - this.labelPosition.clipPadding),
+        ry: curLabelPosition ? (curLabelPosition.radius * this.labelPosition.width + 5) : (this.labelPosition.height / 2 - this.labelPosition.clipPadding),
       });
     },
   },
@@ -580,7 +613,7 @@ export default {
       return 1 / (this.rpm / 60);
     },
     labelSource() {
-      return this.activeAlbum?.labelSource;
+      return this.activeSong?.labelSource || this.activeAlbum?.labelSource;
     },
   },
   watch: {
@@ -597,7 +630,9 @@ export default {
       this.updateToHash();
     },
     activeSong(song) {
+      this.preloadTrack(song);
       this.updateMediaSession(song);
+      this.preloadNext();
     },
     playing(newVal) {
       if (newVal) this.$refs.recordPlayer?.play();
@@ -648,7 +683,8 @@ export default {
       );
     },
 
-    loadAndPlay() {
+    async loadAndPlay() {
+      this.activeSong && await this.preloadTrack(this.activeSong);
       this.$refs.aplayer?.load();
       this.$refs.aplayer?.addEventListener(
         "loadedmetadata",
@@ -657,6 +693,27 @@ export default {
         },
         { once: true }
       );
+    },
+
+    async preloadTrack(track) {
+      track._preloadPromise ||= this._preloadTrack(track);
+      await track._preloadPromise;
+    },
+
+    async _preloadTrack(track) {
+      if (track.labelThumbSource) {
+        console.log('PRELOAD', track.title);
+        Vue.set(track, 'labelPosition', await findRecordLabelPosition(track.labelThumbSource));
+      }
+    },
+
+    preloadNext() {
+      let nextTrack = this.peekSong(this.activeSongIndex + 1);
+      if (!nextTrack) {
+        // TODO: Get next album
+        return;
+      }
+      this.preloadTrack(nextTrack);
     },
 
     jumpToSong(songIndex, albumIndex = this.activeAlbumIndex) {
