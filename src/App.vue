@@ -131,6 +131,8 @@
                 </label>
               </label>
             </label>
+
+            <button @click="loadAlbumsQueue()">Load Queue</button>
           </section>
 
           <hr />
@@ -262,154 +264,9 @@ import RecordPlayer from "./components/RecordPlayer";
 import SettingsIcon from "./components/icons/SettingsIcon";
 import ChunkyButton from "./components/ChunkyButton";
 import Vue from "vue";
-import AsyncComputed from "vue-async-computed";
 import {findRecordLabelPosition} from './utils/imageUtils';
+import {Album} from './models';
 
-Vue.use(AsyncComputed);
-
-/**
- * @param {string} ocaid
- */
-function extract_tracklist(ocaid, metadata) {
-  const get_original = (file) =>
-    file.source === "original"
-      ? file
-      : metadata.files.find((f) => f.name === file.original);
-
-  const get_artist = (orig) => {
-    const normalize_creator = (c) =>
-      c instanceof Array
-        ? c.join(", ")
-        : c
-        ? normalize_creator(c.split(";"))
-        : c;
-    const artist = normalize_creator(orig.artist);
-    const creator = normalize_creator(orig.creator);
-    return artist && creator
-      ? artist.length < creator.length
-        ? artist
-        : creator
-      : artist || creator;
-  };
-
-  const get_track = (orig) => {
-    const m = orig.name.match(/^_?(\d{2})/);
-    return m ? m[1] : orig.track;
-  };
-  const get_quality = (f) => {
-    return /restored\.[a-z0-9]+$/.test(f.name) ? "restored" : "unrestored";
-  };
-
-  const originals = metadata.files
-    .filter((f) => f.source === "original")
-    .map((f) => Object.assign({}, f, { deriveds: [] }));
-  const deriveds = metadata.files.filter((f) => f.source !== "original");
-  // Attach the deriveds to the originals
-  deriveds
-    .filter((f) => get_original(f))
-    .forEach((f) => {
-      const orig = get_original(f);
-      const original = originals.find((o) => o.name == orig.name);
-      // Some PDFs/JSON can have a chain of deriveds!
-      if (original) {
-        original.deriveds.push(f);
-      }
-    });
-
-  const tracklist = originals
-    .filter((f) => f.title && !f.name.startsWith("history/"))
-    // .filter(f => get_quality(f) == this.quality)
-    .map((orig) => {
-      const mp3 = orig.deriveds.find((f) => f.name.endsWith(".mp3"));
-      const quality = get_quality(orig);
-      return {
-        // title: orig.title.replace(/ \(restored\)$/, ''),
-        title: orig.title,
-        quality,
-        src: `https://archive.org/download/${ocaid}/${mp3.name}`,
-        artist: get_artist(orig),
-        track: get_track(orig),
-        album: metadata.metadata.title,
-        artwork: [
-          {
-            src: `https://archive.org/download/${ocaid}/${ocaid}_itemimage.jpg`,
-            type: "image/jpg",
-          },
-          {
-            src: `https://archive.org/download/${ocaid}/__ia_thumb.jpg`,
-            sizes: "180x180",
-            type: "image/jpg",
-          },
-        ],
-        duration: parseFloat(orig.length),
-        original: orig,
-      };
-    });
-  tracklist.forEach((track) => {
-    if (track.quality === "restored") {
-      // See if it has an un-restored version
-      const unrestoredCandidates = tracklist.filter(
-        (t2) => t2.track == track.track && t2 != track
-      );
-      if (unrestoredCandidates.length == 1) {
-        track.hasUnrestoredCopy = true;
-        unrestoredCandidates[0].hasRestoredCopy = true;
-      }
-      // otherwise all false (show twice)
-    }
-  });
-
-  // We want to see if we can get the record covers.
-
-  // Test:
-  // let n be the number of tracks.
-  // If (1) a _jp2.zip file exists and (2) it has n + 1 images (1 for the cover),
-  // then assume everything maps.
-  // Examples:
-  // - 78_pomp-and-circumstance_chicago-symphony-orchestra-sir-edward-elgar-frederick-stock_gbia7035420b
-  const track_count = Math.max(
-    tracklist.filter(t => t.quality == 'restored').length,
-    tracklist.filter(t => t.quality == 'unrestored').length,
-  );
-  if (track_count > 2) {
-    const jp2_zip_name = `${ocaid}_jp2.zip`;
-    const file_metadata = metadata.files.find(f => f.name == jp2_zip_name);
-    if (file_metadata) {
-      const jp2_count = parseFloat(file_metadata.filecount);
-      // If +1, only has cover at start
-      // If +2, also has back cover at end, but the offset is still the same
-      if (jp2_count >= track_count + 1) {
-        // We have a cover and a record label for each track listing!
-        tracklist.forEach((track, i) => {
-          const src = `https://archive.org/cors/${ocaid}/${ocaid}_jp2.zip/${ocaid}_jp2%2F${ocaid}_${(i+1).toString().padStart(4, '0')}.jp2&ext=jpg`
-          track.labelSource = src + '&reduce=2',
-          track.labelThumbSource = src + '&reduce=4';
-        });
-      }
-    }
-  }
-  return tracklist;
-}
-
-/**
- * @param {string} ocaid
- */
-async function album_from_ocaid(ocaid) {
-  const metadata = await fetch(
-    `https://archive.org/metadata/${ocaid}`
-  ).then((r) => r.json());
-  const thumb = `https://archive.org/cors/${ocaid}/__ia_thumb.jpg`;
-  const labelPosition = await findRecordLabelPosition(thumb);
-  const tracklist = extract_tracklist(ocaid, metadata);
-  return {
-    ocaid,
-    metadata,
-    tracklist,
-    labelSource: `https://archive.org/download/${ocaid}/${ocaid}_itemimage.jpg`,
-    labelPosition,
-    hasCover: Boolean(tracklist[0]?.labelSource),
-  };
-}
 
 function updateToHash(data) {
   const hashParams = new URLSearchParams(window.location.hash.slice(1));
@@ -528,6 +385,12 @@ export default {
         "78_our-america_y-ciannella-r-hunter_gbia0082728",
         "78_the-woodpecker-song_mark-warnow-and-his-orchestra-arthur-johnston-sam-coslow-your-s_gbia0082964",
       ],
+
+      /** @type {Album[]} */
+      albumsQueue: [],
+
+      /** @type {string?} */
+      lastHash: null,
     };
 
     updateFromHash(data);
@@ -536,47 +399,33 @@ export default {
   mounted() {
     window.addEventListener("hashchange", this.updateFromHash, false);
     this.updateFromHash();
-    this.updateToHash();
+    this.loadAlbumsQueue();
   },
   beforeDestroy() {
     window.removeEventListener("hashchange", this.updateFromHash);
   },
-  asyncComputed: {
-    async albumsQueue() {
-      let ocaids = [];
-      if (this.queueSource == "query") {
-        // e.g. https://archive.org/advancedsearch.php?q=christmas+collection%3Ageorgeblood&fl[]=identifier&rows=50&page=1&output=json
-        const results = await fetch(
-          `https://archive.org/advancedsearch.php?${new URLSearchParams({
-            q: this.query,
-            page: 1,
-            rows: 25,
-            output: "json",
-            // only fetch identifier; then fetch the metadata for each
-            "fl[]": "identifier",
-            "sort[]": this.querySort,
-          })}`
-        ).then((r) => r.json());
-        ocaids = results.response.docs.map((d) => d.identifier);
-      } else if (this.queueSource == "ocaids") {
-        if (!this.ocaid) return;
-        ocaids = this.ocaid.split(/[,|;\n]/gm);
-      } else {
-        throw new Error(`Unexpected queueSource: ${this.queueSource}`);
-      }
-
-      const chunks = chunk(ocaids, 5);
-      let result = [];
-      for (const ch of chunks) {
-        result = result.concat(await Promise.all(ch.map(album_from_ocaid)));
-      }
-
-      return result;
+  computed: {
+    activeTrackList() {
+      if (!this.activeAlbum) return;
+      return this.filterTrackList(this.activeAlbum?.tracklist);
     },
-    async activeAlbum() {
-      return this.albumsQueue?.[this.activeAlbumIndex];
+    activeSong() {
+      return this.activeTrackList?.[this.activeSongIndex];
     },
-    async labelCoords() {
+    activeAlbum() {
+      return this.albumsQueue[this.activeAlbumIndex];
+    },
+
+    drawerOpen() {
+      return this.settingsDrawerOpen;
+    },
+    cycleLength() {
+      return 1 / (this.rpm / 60);
+    },
+    labelSource() {
+      return this.activeSong?.labelSource || this.activeAlbum?.labelSource;
+    },
+    labelCoords() {
       // we position it so that the two pins are in the same place on the canvas
       const videoPin = this.videoUnitCoordToCanvasCoord(this.videoRegions.pin);
       const curLabelPosition = this.activeSong?.labelPosition || this.activeAlbum?.labelPosition;
@@ -597,38 +446,7 @@ export default {
       });
     },
   },
-  computed: {
-    activeTrackList() {
-      if (!this.activeAlbum) return;
-      return this.filterTrackList(this.activeAlbum?.tracklist);
-    },
-    activeSong() {
-      return this.activeTrackList?.[this.activeSongIndex];
-    },
-
-    drawerOpen() {
-      return this.settingsDrawerOpen;
-    },
-    cycleLength() {
-      return 1 / (this.rpm / 60);
-    },
-    labelSource() {
-      return this.activeSong?.labelSource || this.activeAlbum?.labelSource;
-    },
-  },
   watch: {
-    queueSource() {
-      this.updateToHash();
-    },
-    querySort() {
-      this.updateToHash();
-    },
-    query() {
-      this.updateToHash();
-    },
-    ocaid() {
-      this.updateToHash();
-    },
     activeSong(song) {
       this.preloadTrack(song);
       this.updateMediaSession(song);
@@ -641,10 +459,56 @@ export default {
   },
   methods: {
     updateToHash() {
-      return updateToHash(this);
+      updateToHash(this);
+      this.lastHash = window.location.hash;
     },
     updateFromHash() {
-      return updateFromHash(this);
+      if (this.lastHash != window.location.hash) {
+        updateFromHash(this);
+        this.loadAlbumsQueue();
+      }
+    },
+
+    async loadAlbumsQueue() {
+      this.updateToHash();
+
+      /** @type {string[]} */
+      let ocaids = [];
+      if (this.queueSource == "query") {
+        // e.g. https://archive.org/advancedsearch.php?q=christmas+collection%3Ageorgeblood&fl[]=identifier&rows=50&page=1&output=json
+        const results = await fetch(
+          `https://archive.org/advancedsearch.php?${new URLSearchParams({
+            q: this.query,
+            page: 1,
+            rows: 25,
+            output: "json",
+            // only fetch identifier; then fetch the metadata for each
+            "fl[]": "identifier",
+            "sort[]": this.querySort,
+          })}`
+        ).then((r) => r.json());
+        ocaids = results.response.docs.map((d) => d.identifier);
+      } else if (this.queueSource == "ocaids") {
+        if (!this.ocaid) {
+          this.albumsQueue = [];
+          return;
+        }
+        ocaids = this.ocaid.split(/[,|;\n]/gm);
+      } else {
+        throw new Error(`Unexpected queueSource: ${this.queueSource}`);
+      }
+
+      const chunks = chunk(ocaids, 5);
+      let albumsReset = false;
+      for (const ch of chunks) {
+        const albums = await Promise.all(ch.map(Album.fromOcaid));
+        if (!albumsReset) {
+          this.albumsQueue = albums;
+          albumsReset = true;
+        } else {
+          this.albumsQueue.push(...albums);
+        }
+      }
     },
 
     updateMediaSession(song) {

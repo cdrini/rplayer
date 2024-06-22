@@ -13,8 +13,7 @@
     "@vue/cli-plugin-babel": "^5.0.8",
     "d3-color": "^2.0.0",
     "lodash": "4.17.20",
-    "vue": "^2.7.16",
-    "vue-async-computed": "3.9.0"
+    "vue": "^2.7.16"
   },
   "devDependencies": {
     "@vue/cli-plugin-eslint": "^5.0.8",
