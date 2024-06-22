@@ -30,12 +30,12 @@
 
     <div class="albums-queue">
       <template v-for="(album, albumIndex) of albumsQueue">
-        <div v-if="'error' in album" class="albums-queue--error" :key="album.ocaid">
+        <div v-if="'error' in album" class="albums-queue--error" :key="albumIndex">
           Error loading album (<a :href="`https://archive.org/details/${album.ocaid}`" target="_blank">Details</a>)
         </div>
         <AlbumsQueueAlbum
           v-else
-          :key="album.ocaid"
+          :key="albumIndex"
           :album="album"
           :tracklist="filterTrackList(album.tracklist)"
         >
