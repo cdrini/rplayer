@@ -61,6 +61,9 @@ function extractTrackList(metadata) {
       ? file
       : metadata.files.find((f) => f.name === file.original);
 
+  /**
+   * @param {IAMetadataFileAudio} orig
+   */
   const get_artist = (orig) => {
     const normalize_creator = (c) =>
       c instanceof Array
@@ -77,10 +80,18 @@ function extractTrackList(metadata) {
       : artist || creator;
   };
 
+  /**
+   * @param {IAMetadataFileAudio} orig
+   */
   const get_track = (orig) => {
     const m = orig.name.match(/^_?(\d{2})/);
     return m ? m[1] : orig.track;
   };
+
+  /**
+   * @param {IAMetadataFileAudio} f 
+   * @returns {'restored' | 'unrestored'}
+   */
   const get_quality = (f) => {
     return /restored\.[a-z0-9]+$/.test(f.name) ? "restored" : "unrestored";
   };
@@ -112,14 +123,13 @@ function extractTrackList(metadata) {
     // .filter(f => get_quality(f) == this.quality)
     .map((orig) => {
       const mp3 = orig.deriveds.find((f) => f.name.endsWith(".mp3"));
-      const quality = get_quality(orig);
       if (!('title' in orig)) {
         throw new Error(`Missing title in ${orig.name}`);
       }
       return {
         // title: orig.title.replace(/ \(restored\)$/, ''),
         title: orig.title,
-        quality,
+        quality: get_quality(orig),
         src: mp3 ? `https://archive.org/download/${ocaid}/${mp3.name}` : null,
         artist: get_artist(orig),
         track: get_track(orig),
@@ -150,11 +160,14 @@ function extractTrackList(metadata) {
     if (track.quality === "restored") {
       // See if it has an un-restored version
       const unrestoredCandidates = tracklist.filter(
-        (t2) => t2.track == track.track && t2 != track
+        (t2) => (
+          (t2.track == track.track)
+          || (track.title.toLocaleLowerCase().replace('(restored)', '').trim() == t2.title.toLocaleLowerCase().trim())
+        ) && t2 != track
       );
-      if (unrestoredCandidates.length == 1) {
+      if (unrestoredCandidates.length) {
         track.hasUnrestoredCopy = true;
-        unrestoredCandidates[0].hasRestoredCopy = true;
+        unrestoredCandidates.forEach(t => t.hasRestoredCopy = true);
       }
       // otherwise all false (show twice)
     }

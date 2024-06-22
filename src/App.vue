@@ -406,8 +406,8 @@ export default {
   },
   computed: {
     activeTrackList() {
-      if (!this.activeAlbum) return;
-      return this.filterTrackList(this.activeAlbum?.tracklist);
+      if (!this.activeAlbum) return [];
+      return this.filterTrackList(this.activeAlbum.tracklist);
     },
     activeSong() {
       return this.activeTrackList?.[this.activeSongIndex];
