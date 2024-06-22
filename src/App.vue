@@ -30,7 +30,7 @@
 
     <div class="albums-queue">
       <template v-for="(album, albumIndex) of albumsQueue">
-        <div v-if="album.error" class="albums-queue--error" :key="album.ocaid">
+        <div v-if="'error' in album" class="albums-queue--error" :key="album.ocaid">
           Error loading album (<a :href="`https://archive.org/details/${album.ocaid}`" target="_blank">Details</a>)
         </div>
         <AlbumsQueueAlbum
@@ -454,8 +454,10 @@ export default {
   },
   watch: {
     activeSong(song) {
-      this.preloadTrack(song);
-      this.updateMediaSession(song);
+      if (song) {
+        this.preloadTrack(song);
+        this.updateMediaSession(song);
+      }
       this.preloadNext();
     },
     playing(newVal) {
