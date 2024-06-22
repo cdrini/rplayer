@@ -663,6 +663,10 @@ body {
   color: #2c3e50;
 }
 
+.record-player {
+  user-select: none;
+}
+
 .record-player video,
 .record-player svg {
   height: 100vh;
