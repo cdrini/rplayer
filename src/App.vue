@@ -29,16 +29,21 @@
     />
 
     <div class="albums-queue">
-      <AlbumsQueueAlbum
-        v-for="(album, albumIndex) of albumsQueue"
-        :key="album.ocaid"
-        :album="album"
-        :tracklist="filterTrackList(album.tracklist)"
-      >
-        <template #post-controls>
-          <button @click="jumpToSong(0, albumIndex)">Play</button>
-        </template>
-      </AlbumsQueueAlbum>
+      <template v-for="(album, albumIndex) of albumsQueue">
+        <div v-if="album.error" class="albums-queue--error" :key="album.ocaid">
+          Error loading album (<a :href="`https://archive.org/details/${album.ocaid}`" target="_blank">Details</a>)
+        </div>
+        <AlbumsQueueAlbum
+          v-else
+          :key="album.ocaid"
+          :album="album"
+          :tracklist="filterTrackList(album.tracklist)"
+        >
+          <template #post-controls>
+            <button @click="jumpToSong(0, albumIndex)">Play</button>
+          </template>
+        </AlbumsQueueAlbum>
+      </template>
     </div>
 
     <div class="right-toolbar">
@@ -266,6 +271,7 @@ import ChunkyButton from "./components/ChunkyButton";
 import Vue from "vue";
 import {findRecordLabelPosition} from './utils/imageUtils';
 import {Album} from './models';
+/** @typedef {import('./models').ErrorAlbum} ErrorAlbum */
 
 
 function updateToHash(data) {
@@ -386,7 +392,7 @@ export default {
         "78_the-woodpecker-song_mark-warnow-and-his-orchestra-arthur-johnston-sam-coslow-your-s_gbia0082964",
       ],
 
-      /** @type {Album[]} */
+      /** @type {Array<Album | ErrorAlbum>} */
       albumsQueue: [],
 
       /** @type {string?} */
@@ -503,6 +509,8 @@ export default {
       for (const ch of chunks) {
         const albums = await Promise.all(ch.map(Album.fromOcaid));
         if (!albumsReset) {
+          this.activeAlbumIndex = 0;
+          this.activeSongIndex = 0;
           this.albumsQueue = albums;
           albumsReset = true;
         } else {
@@ -614,18 +622,22 @@ export default {
     },
 
     nextAlbum() {
-      if (!this.peekSong(0, this.activeAlbumIndex + 1)) {
-        // got nothing :)
-        return;
+      for (let i = this.activeAlbumIndex + 1; i < this.albumsQueue.length; i++) {
+        const album = this.albumsQueue[i];
+        if (!album.error && this.peekSong(0, i)) {
+          this.jumpToSong(0, i);
+          return;
+        }
       }
-      this.jumpToSong(0, this.activeAlbumIndex + 1);
     },
     prevAlbum() {
-      if (this.activeAlbumIndex == 0) {
-        // got nothing :)
-        return;
+      for (let i = this.activeAlbumIndex - 1; i >= 0; i--) {
+        const album = this.albumsQueue[i];
+        if (!album.error && this.peekSong(0, i)) {
+          this.jumpToSong(0, i);
+          return;
+        }
       }
-      this.jumpToSong(-1, this.activeAlbumIndex - 1);
     },
 
     shuffleBackgroundRecords() {
@@ -824,5 +836,23 @@ audio {
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
+}
+
+.albums-queue--error {
+  max-width: 600px;
+  background: rgba(255, 0, 0, 0.1);
+  padding: 8px;
+  border: 1px solid rgba(255, 0, 0, 0.5);
+  border-radius: 8px;
+  margin: 10px auto;
+  margin-top: 30px;
+}
+
+.albums-queue--error + .albums-queue--error {
+  margin-top: 10px;
+}
+
+.albums-queue--error:has(+ :not(.albums-queue--error)) {
+  margin-bottom: 30px;
 }
 </style>

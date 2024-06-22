@@ -55,8 +55,11 @@ export default {
   border: 1px solid rgba(0, 0, 0, 0.3);
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
   border-radius: 10px;
-  margin-bottom: -100px;
   transition: transform 0.2s;
+}
+
+.albums-queue-album:has(+ .albums-queue-album) .albums-queue-album__cover {
+  margin-bottom: -100px;
 }
 
 .albums-queue-album__cover--label {

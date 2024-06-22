@@ -7,6 +7,14 @@ import { fetchMetadata } from "./ia";
 /** @typedef {import('./ia').IAMetadataFileAudio} IAMetadataFileAudio */
 import {findRecordLabelPosition} from './utils/imageUtils';
 
+/**
+ * @typedef {object} ErrorAlbum
+ * @property {string} ocaid
+ * @property {IAFullMetadata} metadata
+ * @property {true} error
+ */
+
+
 export class Album {
   /**
    * @param {object} opts
@@ -30,10 +38,13 @@ export class Album {
 
   /**
    * @param {string} ocaid Internet archive identifier (e.g. `goody`)
-   * @returns {Promise<Album>}
+   * @returns {Promise<Album | ErrorAlbum>}
    */
   static async fromOcaid(ocaid) {
     const metadata = await fetchMetadata(ocaid);
+    if (!metadata.files) {
+      return { ocaid, metadata, error: true };
+    }
     const thumb = `https://archive.org/cors/${ocaid}/__ia_thumb.jpg`;
     const labelPosition = await findRecordLabelPosition(thumb);
     const tracklist = extractTrackList(metadata);
