@@ -30,12 +30,12 @@
 
     <div class="albums-queue">
       <template v-for="(album, albumIndex) of albumsQueue">
-        <div v-if="'error' in album" class="albums-queue--error" :key="albumIndex">
+        <div v-if="'error' in album" class="albums-queue--error" :key="album.ocaid">
           Error loading album (<a :href="`https://archive.org/details/${album.ocaid}`" target="_blank">Details</a>)
         </div>
         <AlbumsQueueAlbum
           v-else
-          :key="albumIndex"
+          :key="album.ocaid"
           :album="album"
           :tracklist="filterTrackList(album.tracklist)"
         >
@@ -405,7 +405,6 @@ export default {
   mounted() {
     window.addEventListener("hashchange", this.updateFromHash, false);
     this.updateFromHash();
-    this.loadAlbumsQueue();
   },
   beforeDestroy() {
     window.removeEventListener("hashchange", this.updateFromHash);
