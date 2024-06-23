@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <div class="rplayer-placeholder"></div>
     <RecordPlayer
       class="record-player"
       ref="recordPlayer"
@@ -666,14 +667,17 @@ body {
   overflow-x: hidden;
 }
 
-body {
-  overflow: hidden;
+html, body, #app {
+  height: 100%;
 }
+
 #app {
+  overflow: auto;
   font-family: "Roboto", "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
+  position: relative;
 }
 
 .record-player {
@@ -856,4 +860,95 @@ audio {
 .albums-queue--error:has(+ :not(.albums-queue--error)) {
   margin-bottom: 30px;
 }
+
+.rplayer-placeholder {
+  display: none;
+}
+
+@supports(animation-range: contain) {
+  #app {
+    timeline-scope: --leaving-rplayer-timeline;
+  }
+  .rplayer-placeholder {
+    display: block;
+    height: 100vh;
+    border-radius: 12px;
+    background: lightgrey;
+    view-timeline: --leaving-rplayer-timeline;
+  }
+  
+  
+  .record-player {
+    overflow: clip;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    position: absolute;
+  
+    animation: auto linear rplayerScrollToToolbarAnimation both;
+    /* animation-duration: 1ms; */
+    animation-timeline: --leaving-rplayer-timeline;
+    animation-range: contain exit 50%;
+  }
+  
+  
+  
+  .record-player > video, .record-player > svg {
+    width: 100%;
+    height: inherit;
+  
+    animation: auto linear rplayerInnerScrollToToolbarAnimation both;
+    animation-timeline: --leaving-rplayer-timeline;
+    animation-range: contain exit 50%;
+  }
+  
+  @keyframes rplayerInnerScrollToToolbarAnimation {
+    0% {
+      scale: 1;
+    }
+  
+    100% {
+      scale: 2;
+    }
+  }
+  
+  @keyframes rplayerScrollToToolbarAnimation {
+    0% {
+      position: absolute;
+
+      border-radius: 0;
+      /* opacity: 1; */
+    }
+
+    5% {
+      position: absolute;
+      z-index: 100;
+      border-radius: 0;
+    }
+
+    95% {
+      position: absolute;
+      z-index: 100;
+      margin: 10px;
+      width: 100px;
+      height: 100px;
+      border-radius: 12px;
+      bottom: -50vh;
+      /* opacity: 0; */
+    }
+
+    100% {
+      position: fixed;
+      z-index: 100;
+      margin: 10px;
+      width: 100px;
+      height: 100px;
+      border-radius: 12px;
+      bottom: 0;
+    }
+  }
+}
+
+
 </style>
