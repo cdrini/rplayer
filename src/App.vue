@@ -893,7 +893,7 @@ audio {
     animation: auto linear rplayerScrollToToolbarAnimation both;
     /* animation-duration: 1ms; */
     animation-timeline: --leaving-rplayer-timeline;
-    animation-range: contain exit 50%;
+    animation-range: exit 0% exit 80%;
   }
   
   
@@ -904,7 +904,7 @@ audio {
   
     animation: auto linear rplayerInnerScrollToToolbarAnimation both;
     animation-timeline: --leaving-rplayer-timeline;
-    animation-range: contain exit 50%;
+    animation-range: exit 0% exit 80%;
   }
   
   @keyframes rplayerInnerScrollToToolbarAnimation {
@@ -938,7 +938,7 @@ audio {
       width: 100px;
       height: 100px;
       border-radius: 12px;
-      bottom: -50vh;
+      bottom: -80vh;
       /* opacity: 0; */
     }
 
