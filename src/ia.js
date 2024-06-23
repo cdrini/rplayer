@@ -55,11 +55,3 @@
 export async function fetchMetadata(ocaid) {
     return fetch(`https://archive.org/metadata/${ocaid}`).then((r) => r.json());
 }
-
-/**
- * @param {IAMetadataFile} file
- * @returns {file is IAMetadataFileAudio}
- */
-export function isMetadataFileAudio(file) {
-    return 'length' in file;
-}

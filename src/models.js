@@ -1,5 +1,5 @@
 // @ts-check
-import { fetchMetadata, isMetadataFileAudio } from "./ia";
+import { fetchMetadata } from "./ia";
 /** @typedef {import('./ia').IAFullMetadata} IAFullMetadata */
 /** @typedef {import('./ia').IAMetadataFile} IAMetadataFile */
 /** @typedef {import('./ia').IAMetadataFileBase} IAMetadataFileBase */
@@ -126,16 +126,24 @@ function extractTrackList(metadata) {
       }
     });
 
+  const getAudioOriginals = () => {
+    const originalsByTitle = originals.filter(f => 'title' in f && !f.name.startsWith("history/"));
+    if (originalsByTitle.length) {
+      return originalsByTitle;
+    }
+
+    // If no titles, then we have to guess based on the length.
+    return originals.filter(f => 'length' in f && !f.name.startsWith("history/"));
+  };
   
-  const audioOriginals = originals
-    .filter((f) => isMetadataFileAudio(f) && !f.name.startsWith("history/"))
+  const audioOriginals = getAudioOriginals();
 
   const tracklist = audioOriginals
     // .filter(f => get_quality(f) == this.quality)
     .map((orig) => {
       const mp3 = orig.deriveds.find((f) => f.name.endsWith(".mp3"));
-      if (!isMetadataFileAudio(orig)) {
-        throw new Error(`Missing title in ${orig.name}`);
+      if (!('length' in orig)) {
+        throw new Error(`Missing length in ${orig.name}`);
       }
       return {
         // title: orig.title.replace(/ \(restored\)$/, ''),
