@@ -11,7 +11,7 @@ import {findRecordLabelPosition} from './utils/imageUtils';
  * @typedef {object} ErrorAlbum
  * @property {string} ocaid
  * @property {IAFullMetadata} metadata
- * @property {true} error
+ * @property {string} error
  */
 
 
@@ -43,11 +43,14 @@ export class Album {
   static async fromOcaid(ocaid) {
     const metadata = await fetchMetadata(ocaid);
     if (!metadata.files) {
-      return { ocaid, metadata, error: true };
+      return { ocaid, metadata, error: 'No files in item.' };
+    }
+    const tracklist = extractTrackList(metadata);
+    if (!tracklist.length) {
+      return { ocaid, metadata, error: 'Unable to find any tracks.' };
     }
     const thumb = `https://archive.org/cors/${ocaid}/__ia_thumb.jpg`;
     const labelPosition = await findRecordLabelPosition(thumb);
-    const tracklist = extractTrackList(metadata);
     return new Album({
       ocaid,
       metadata,
