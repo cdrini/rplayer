@@ -927,7 +927,7 @@ audio {
       border-radius: 0;
     }
 
-    95% {
+    99.9% {
       position: absolute;
       z-index: 100;
       margin: 10px;
