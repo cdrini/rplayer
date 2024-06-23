@@ -1,5 +1,5 @@
 // @ts-check
-import { fetchMetadata } from "./ia";
+import { fetchMetadata, isMetadataFileAudio } from "./ia";
 /** @typedef {import('./ia').IAFullMetadata} IAFullMetadata */
 /** @typedef {import('./ia').IAMetadataFile} IAMetadataFile */
 /** @typedef {import('./ia').IAMetadataFileBase} IAMetadataFileBase */
@@ -128,18 +128,18 @@ function extractTrackList(metadata) {
 
   
   const audioOriginals = originals
-    .filter((f) => 'title' in f && !f.name.startsWith("history/"))
+    .filter((f) => isMetadataFileAudio(f) && !f.name.startsWith("history/"))
 
   const tracklist = audioOriginals
     // .filter(f => get_quality(f) == this.quality)
     .map((orig) => {
       const mp3 = orig.deriveds.find((f) => f.name.endsWith(".mp3"));
-      if (!('title' in orig)) {
+      if (!isMetadataFileAudio(orig)) {
         throw new Error(`Missing title in ${orig.name}`);
       }
       return {
         // title: orig.title.replace(/ \(restored\)$/, ''),
-        title: orig.title,
+        title: orig.title || orig.name.replace(/\.[^.]+$/, ''),
         quality: get_quality(orig),
         src: mp3 ? `https://archive.org/download/${ocaid}/${mp3.name}` : null,
         artist: get_artist(orig),

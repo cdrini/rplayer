@@ -30,7 +30,7 @@
 
 /**
  * @typedef {object} _IAMetadataFileAudioProperties
- * @property {string} title
+ * @property {string} [title]
  * @property {string} [track] (e.g. "01")
  * @property {string} [creator]
  * @property {string} [album]
@@ -54,4 +54,12 @@
  */
 export async function fetchMetadata(ocaid) {
     return fetch(`https://archive.org/metadata/${ocaid}`).then((r) => r.json());
+}
+
+/**
+ * @param {IAMetadataFile} file
+ * @returns {file is IAMetadataFileAudio}
+ */
+export function isMetadataFileAudio(file) {
+    return 'length' in file;
 }
