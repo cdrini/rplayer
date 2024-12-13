@@ -362,40 +362,15 @@ export default {
         opacity: 1,
       },
 
+      /**
+       * Records currently displayed in the background.
+       */
       backgroundRecords: [],
 
-      candidateBackgroundRecords: [
-        // Christmas songs
-        "78_christmas-day-part-ii_men-about-town_gbia0020416",
-        // Other
-        "78_alice-in-wonderland-songs-from-mother-goose__gbia0007708",
-        "78_whispering-grass-dont-tell-the-trees_ink-spots-jack-lawrence_gbia0020004",
-        "78_nine-pound-hammer_merle-travis-travis-nation-hensley_gbia0085986",
-        "78_for-quiet-beauty_y-ciannella-l-winter-r-hunter-t-pyle-carringer_gbia0082727",
-        "78_the-young-birch-tree_red-army-choir-of-the-ussr-a-alexandrov-v-pankov_gbia0020378",
-        "78_pavanne_glenn-miller-and-his-orchestra-j-r-shannon-frederic-knight-logan_gbia0020267",
-        "78_ive-got-a-right-to-cry_erskine-hawkins-and-his-orchestra-jimmy-mitchelle-unger-ber_gbia0083001",
-        "78_lullaby-for-a-man-condemned-to-be-hanged-at-dawn_alexander-kipnis-with-balalaika-or_gbia0033142",
-        "78_song-of-praise_malinke-tribe-laura-c-boulton_gbia0067634",
-        "78_always_swing-and-sway-with-sammy-kaye-irving-berlin_gbia0083045",
-        "78_king-cole-trio-vol.-2_the-king-cole-trio-nat-cole_gbia0003357",
-        "78_ja-so-bin-ich_marlene-dietrich-peter-kreuder-and-his-orchestra-nelson-hollander_gbia0020059",
-        "78_the-first-nowell_the-lyn-murray-singers-oakeley-lyn-murray_gbia0020460",
-        "78_good-night-sweetheart_tony-martin-earle-hagen-and-his-orchestra-otto-harbach-jerom_gbia0083008",
-        "78_west-end-blues_louis-armstrong-and-his-orchestra-spencer-williams_gbia0031327",
-        "78_boogie-woogie-music-vol.-2_meade-lux-lewis-shayne_gbia0003369",
-        "78_in-the-mood_glenn-miller-and-his-orchestra-johnson-dash-hawkins_gbia0020402",
-        "78_cuban-rhythms_hotel-nacional-orchestra-beltran_gbia0002479",
-        "78_when-a-woman-loves-a-man_billie-holiday-and-her-orchestra-billie-holiday-buck-clayt_gbia0031202",
-        "78_semper-paratus_victor-military-band-the-four-clubmen-r-j-burt-sr-simon-dapp-phi_gbia0082738",
-        "78_music-of-latin-america_enric-madriguera-and-orchestra-marcelino-guerra_gbia0002363",
-        "78_st-louis-blues_louis-armstrong-and-his-orchestra-original-dixieland-jazz-band_gbia0039403",
-        "78_frankie-and-johnnie_duke-ellington-and-his-orchestra-clarence-and-spencer-williams_gbia0020273",
-        "78_moonglow_vaughn-monroe-and-his-orchestra-watson-monroe-pope-vaughn-monroe_gbia0082957",
-        "78_xavier-cugats-mexico_xavier-cugat-and-his-waldorf-astoria-orchestra-lina-romay-and_gbia0002483",
-        "78_our-america_y-ciannella-r-hunter_gbia0082728",
-        "78_the-woodpecker-song_mark-warnow-and-his-orchestra-arthur-johnston-sam-coslow-your-s_gbia0082964",
-      ],
+      /**
+       * Pool of records that can be used as background records.
+       */
+      candidateBackgroundRecords: [],
 
       /** @type {Array<Album | ErrorAlbum>} */
       albumsQueue: [],
@@ -651,9 +626,23 @@ export default {
       }
     },
 
-    shuffleBackgroundRecords() {
+    async shuffleBackgroundRecords() {
+      if (!this.candidateBackgroundRecords.length) {
+        const results = await fetch(
+          `https://archive.org/advancedsearch.php?${new URLSearchParams({
+            q: "collection:georgeblood AND imagecount:[8 TO 1000]",
+            rows: 100,
+            output: "json",
+            "fl[]": "identifier",
+            "sort[]": "random",
+          })}`).then((r) => r.json());
+        
+        this.candidateBackgroundRecords = results.response.docs.map((d) => d.identifier);
+      }
+      
       this.backgroundRecords = shuffle(this.candidateBackgroundRecords);
     },
+
     videoUnitCoordToCanvasCoord({ x, y }) {
       return {
         x: x * this.videoWidth,
