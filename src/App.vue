@@ -487,17 +487,22 @@ export default {
       /** @type {string[]} */
       let ocaids = [];
       if (this.queueSource == "query") {
+        const params = {
+          q: this.query,
+          page: 1,
+          rows: 25,
+          output: "json",
+          // only fetch identifier; then fetch the metadata for each
+          "fl[]": "identifier",
+        };
+
+        if (this.querySort) {
+          params["sort[]"] = this.querySort;
+        }
+        
         // e.g. https://archive.org/advancedsearch.php?q=christmas+collection%3Ageorgeblood&fl[]=identifier&rows=50&page=1&output=json
         const results = await fetch(
-          `https://archive.org/advancedsearch.php?${new URLSearchParams({
-            q: this.query,
-            page: 1,
-            rows: 25,
-            output: "json",
-            // only fetch identifier; then fetch the metadata for each
-            "fl[]": "identifier",
-            "sort[]": this.querySort,
-          })}`
+          `https://archive.org/advancedsearch.php?${new URLSearchParams(params)}`
         ).then((r) => r.json());
         ocaids = results.response.docs.map((d) => d.identifier);
       } else if (this.queueSource == "ocaids") {
