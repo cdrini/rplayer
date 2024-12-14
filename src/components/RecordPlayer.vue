@@ -344,7 +344,7 @@ a.background-record:hover image {
   max-height: calc(100vh - 40px);
   max-width: calc(100vw - 40px);
   object-fit: contain;
-  border-radius: 10px;
+  border-radius: 6px;
   overflow: clip;
 }
 

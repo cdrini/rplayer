@@ -634,8 +634,8 @@ export default {
       if (!this.candidateBackgroundRecords.length) {
         const results = await fetch(
           `https://archive.org/advancedsearch.php?${new URLSearchParams({
-            q: "collection:georgeblood AND imagecount:[8 TO 1000]",
-            rows: 100,
+            q: "collection:georgeblood AND imagecount:[6 TO 1000]",
+            rows: 1000,
             output: "json",
             "fl[]": "identifier",
             "sort[]": "random",
