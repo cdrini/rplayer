@@ -80,16 +80,17 @@
         />
       </g>
 
-      <g
+      <g class="background-records-layer"
         v-if="backgroundRecords.length"
-        class="background-records-layer"
         mask="url(#record-player-obsturction)"
       >
         <g class="background-records">
-          <a
-            class="background-record"
-            transform="matrix(3.6803983,-2.3394427,2.3394427,3.6803983,18.455985,-53.349974)"
-            :href="`#ocaid=${backgroundRecords[12]}`"
+          <a class="background-record"
+            v-for="(_, index) in POSITIONS"
+            :key="index"
+            :transform="POSITIONS[index].backgroundTransform"
+            :href="`#ocaid=${backgroundRecords[index]}`"
+            @click="showInForeground($event, index)"
           >
             <image
               x="0"
@@ -97,195 +98,17 @@
               width="100"
               height="100"
               preserveAspectRatio="xMidYMax meet"
-              :href="`https://archive.org/download/${backgroundRecords[12]}/${backgroundRecords[12]}_itemimage.jpg`"
-            />
-          </a>
-
-          <a
-            class="background-record"
-            transform="matrix(4.4124285,-0.48897121,0.48897121,4.4124285,958.88356,478.19657)"
-            :href="`#ocaid=${backgroundRecords[5]}`"
-          >
-            <image
-              x="0"
-              y="0"
-              width="100"
-              height="100"
-              preserveAspectRatio="xMidYMin meet"
-              :href="`https://archive.org/download/${backgroundRecords[5]}/${backgroundRecords[5]}_itemimage.jpg`"
-            />
-          </a>
-
-          <a
-            class="background-record"
-            transform="matrix(-0.12717073,-4.4376173,4.4376173,-0.12717073,913.5741,653.32312)"
-            :href="`#ocaid=${backgroundRecords[6]}`"
-          >
-            <image
-              x="0"
-              y="0"
-              width="100"
-              height="100"
-              preserveAspectRatio="xMidYMin meet"
-              :href="`https://archive.org/download/${backgroundRecords[6]}/${backgroundRecords[6]}_itemimage.jpg`"
-            />
-          </a>
-
-          <a
-            class="background-record"
-            transform="matrix(4.2566704,0.94819885,-0.94819885,4.2566704,376.8816,-391.54565)"
-            :href="`#ocaid=${backgroundRecords[11]}`"
-          >
-            <image
-              x="0"
-              y="0"
-              width="100"
-              height="100"
-              preserveAspectRatio="xMidYMax meet"
-              :href="`https://archive.org/download/${backgroundRecords[11]}/${backgroundRecords[11]}_itemimage.jpg`"
-            />
-          </a>
-
-          <a
-            class="background-record"
-            transform="matrix(3.1021782,-3.2614561,3.2614561,3.1021782,542.695,-109.05265)"
-            :href="`#ocaid=${backgroundRecords[10]}`"
-          >
-            <image
-              x="0"
-              y="0"
-              width="100"
-              height="100"
-              preserveAspectRatio="xMidYMax meet"
-              :href="`https://archive.org/download/${backgroundRecords[10]}/${backgroundRecords[10]}_itemimage.jpg`"
-            />
-          </a>
-
-          <a
-            class="background-record"
-            transform="matrix(4.4316424,-0.26299094,0.26299094,4.4316424,894.00036,49.550936)"
-            :href="`#ocaid=${backgroundRecords[8]}`"
-          >
-            <image
-              x="0"
-              y="0"
-              width="100"
-              height="100"
-              preserveAspectRatio="xMidYMin meet"
-              :href="`https://archive.org/download/${backgroundRecords[8]}/${backgroundRecords[8]}_itemimage.jpg`"
-            />
-          </a>
-
-          <a
-            class="background-record"
-            transform="matrix(3.7144129,2.5423893,-2.5423893,3.7144129,1302.2755,-312.7138)"
-            :href="`#ocaid=${backgroundRecords[9]}`"
-          >
-            <image
-              x="0"
-              y="0"
-              width="100"
-              height="100"
-              preserveAspectRatio="xMidYMax meet"
-              :href="`https://archive.org/download/${backgroundRecords[9]}/${backgroundRecords[9]}_itemimage.jpg`"
-            />
-          </a>
-
-          <a
-            class="background-record"
-            transform="matrix(4.1952754,-1.4519927,1.4519927,4.1952754,1122.3047,331.49099)"
-            :href="`#ocaid=${backgroundRecords[7]}`"
-          >
-            <image
-              x="0"
-              y="0"
-              width="100"
-              height="100"
-              preserveAspectRatio="xMidYMin meet"
-              :href="`https://archive.org/download/${backgroundRecords[7]}/${backgroundRecords[7]}_itemimage.jpg`"
-            />
-          </a>
-
-          <a
-            class="background-record"
-            transform="matrix(4.4124285,-0.48897121,0.48897121,4.4124285,512.45499,531.05371)"
-            :href="`#ocaid=${backgroundRecords[4]}`"
-          >
-            <image
-              x="0"
-              y="0"
-              width="100"
-              height="100"
-              preserveAspectRatio="xMidYMin meet"
-              :href="`https://archive.org/download/${backgroundRecords[4]}/${backgroundRecords[4]}_itemimage.jpg`"
-            />
-          </a>
-
-          <a
-            class="background-record"
-            transform="matrix(3.9649807,-2.1238039,2.1238039,3.9649807,121.8584,624.03177)"
-            :href="`#ocaid=${backgroundRecords[2]}`"
-          >
-            <image
-              x="0"
-              y="0"
-              width="100"
-              height="100"
-              preserveAspectRatio="xMidYMin meet"
-              :href="`https://archive.org/download/${backgroundRecords[2]}/${backgroundRecords[2]}_itemimage.jpg`"
-            />
-          </a>
-
-          <a
-            class="background-record"
-            transform="matrix(4.3311581,1.2135433,-1.2135433,4.3311581,403.52856,438.85555)"
-            :href="`#ocaid=${backgroundRecords[3]}`"
-          >
-            <image
-              x="0"
-              y="0"
-              width="100"
-              height="100"
-              preserveAspectRatio="xMidYMin meet"
-              :href="`https://archive.org/download/${backgroundRecords[3]}/${backgroundRecords[3]}_itemimage.jpg`"
-            />
-          </a>
-
-          <a
-            class="background-record"
-            transform="matrix(4.3054209,1.3019086,-1.3019086,4.3054209,-108.7461,219.55149)"
-            :href="`#ocaid=${backgroundRecords[1]}`"
-          >
-            <image
-              x="0"
-              y="0"
-              width="100"
-              height="100"
-              preserveAspectRatio="xMidYMin meet"
-              :href="`https://archive.org/download/${backgroundRecords[1]}/${backgroundRecords[1]}_itemimage.jpg`"
-            />
-          </a>
-          <a
-            class="background-record"
-            transform="matrix(3.6791067,-2.2481018,2.2481018,3.6791067,-231.29385,117.76111)"
-            :href="`#ocaid=${backgroundRecords[0]}`"
-          >
-            <image
-              x="0"
-              y="0"
-              width="100"
-              height="100"
-              preserveAspectRatio="xMidYMax meet"
-              :href="`https://archive.org/download/${backgroundRecords[0]}/${backgroundRecords[0]}_itemimage.jpg`"
+              :href="`https://archive.org/download/${backgroundRecords[index]}/${backgroundRecords[index]}_itemimage.jpg`"
             />
           </a>
         </g>
-        <g class="lighting-effects">
+        <g class="lighting-effects"
+          style="pointer-events: none;"
+        >
           <path
             style="
               filter: blur(4px);
               fill: url(#record-player-shadow);
-              pointer-events: none;
               opacity: 0.5;
             "
             d="m 943.57143,560 c 0,0 209.99997,-15.71428 250.71427,-9.28571 40.7143,6.42857 117.1429,-29.28572 117.1429,-29.28572 L 1393.5714,298.57143 1067.1429,72.857143 912.14286,98.571429 Z"
@@ -324,11 +147,48 @@
         />
       </g>
     </svg>
+    <div class="foreground-record"
+      @click="foregroundIndex = null"
+    >
+        <a class="background-record"
+            v-if="foregroundIndex !== null"
+            :href="`#ocaid=${backgroundRecords[foregroundIndex]}`"
+          >
+            <img
+              :src="`https://archive.org/download/${backgroundRecords[foregroundIndex]}/${backgroundRecords[foregroundIndex]}_itemimage.jpg`"
+            />
+
+            <ChunkyButton>
+              <template #label>Play</template>
+            </ChunkyButton>
+          </a>
+        </div>
   </div>
 </template>
 
 <script>
+import ChunkyButton from "./ChunkyButton";
+
+const POSITIONS = [
+  { backgroundTransform: "matrix(3.6803983,-2.3394427,2.3394427,3.6803983,18.455985,-53.349974)" },
+  { backgroundTransform: "matrix(4.4124285,-0.48897121,0.48897121,4.4124285,958.88356,478.19657)" },
+  { backgroundTransform: "matrix(-0.12717073,-4.4376173,4.4376173,-0.12717073,913.5741,653.32312)" },
+  { backgroundTransform: "matrix(4.2566704,0.94819885,-0.94819885,4.2566704,376.8816,-391.54565)" },
+  { backgroundTransform: "matrix(3.1021782,-3.2614561,3.2614561,3.1021782,542.695,-109.05265)" },
+  { backgroundTransform: "matrix(4.4316424,-0.26299094,0.26299094,4.4316424,894.00036,49.550936)" },
+  { backgroundTransform: "matrix(3.7144129,2.5423893,-2.5423893,3.7144129,1302.2755,-312.7138)" },
+  { backgroundTransform: "matrix(4.1952754,-1.4519927,1.4519927,4.1952754,1122.3047,331.49099)" },
+  { backgroundTransform: "matrix(4.4124285,-0.48897121,0.48897121,4.4124285,512.45499,531.05371)" },
+  { backgroundTransform: "matrix(3.9649807,-2.1238039,2.1238039,3.9649807,121.8584,624.03177)" },
+  { backgroundTransform: "matrix(4.3311581,1.2135433,-1.2135433,4.3311581,403.52856,438.85555)" },
+  { backgroundTransform: "matrix(4.3054209,1.3019086,-1.3019086,4.3054209,-108.7461,219.55149)" },
+  { backgroundTransform: "matrix(3.6791067,-2.2481018,2.2481018,3.6791067,-231.29385,117.76111)" },
+];
 export default {
+  components: {
+    ChunkyButton,
+  },
+
   props: {
     videoWidth: {
       type: Number,
@@ -381,6 +241,8 @@ export default {
   data() {
     return {
       playing: false,
+      POSITIONS,
+      foregroundIndex: null,
     };
   },
 
@@ -389,9 +251,20 @@ export default {
       this.$emit("play");
       this.$refs.video?.play();
     },
+
     pause() {
       this.$emit("pause");
       this.$refs.video?.pause();
+    },
+
+    showInForeground(ev, index) {      
+      // ignore ctrl+click
+      if (ev.ctrlKey) return;
+
+      this.foregroundIndex = index;
+
+      ev.preventDefault();
+      ev.stopPropagation();
     },
   },
 };
@@ -424,5 +297,58 @@ a.background-record image {
 
 a.background-record:hover image {
   filter: brightness(1.2);
+}
+
+.foreground-record {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  display: grid;
+  place-content: center;
+}
+
+.foreground-record {
+  transform: background-color 0.5s;
+}
+
+.foreground-record:empty {
+  pointer-events: none;
+}
+
+.foreground-record:not(:empty) {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.foreground-record .chunky-button {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  font-size: 2em;
+  translate: -50%;
+}
+
+.foreground-record a.background-record {
+  pointer-events: all;
+  animation: popUp 0.5s;
+}
+
+.foreground-record a.background-record img {
+  max-height: calc(100vh - 40px);
+  max-width: calc(100vw - 40px);
+  object-fit: contain;
+  border-radius: 10px;
+  overflow: clip;
+}
+
+@keyframes popUp {
+  from {
+    transform: scale(0.8);
+  }
+  to {
+    transform: scale(1);
+  }
 }
 </style>
