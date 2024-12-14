@@ -4,6 +4,8 @@
     <RecordPlayer
       class="record-player"
       ref="recordPlayer"
+      @loadAndPlay="loadAndPlay"
+      @backgroundClick="playing ? $refs.aplayer.pause() : $refs.aplayer.play()"
       @loadedmetadata="handleVideoLoaded"
       :videoWidth="videoWidth"
       :videoHeight="videoHeight"
@@ -16,8 +18,6 @@
       :showRegions="showRegions"
       :cycleLength="cycleLength"
       :minLabelWidth="minLabelWidth"
-      @play="$refs.aplayer.play()"
-      @pause="$refs.aplayer.pause()"
     />
 
     <audio
@@ -502,6 +502,10 @@ export default {
         } else {
           this.albumsQueue.push(...albums);
         }
+      }
+
+      if (this.playing) {
+        await this.loadAndPlay();
       }
     },
 

@@ -15,7 +15,6 @@
     <svg
       :viewBox="`0 0 ${videoWidth} ${videoHeight}`"
       style="cursor: pointer"
-      @click="playing ? pause() : play()"
       preserveAspectRatio="xMidYMid slice"
     >
       <defs>
@@ -70,6 +69,13 @@
           href="#shadow-gradient"
         />
       </defs>
+      <rect
+        width="100%"
+        height="100%"
+        fill="transparent"
+        @click="$emit('backgroundClick', $event)"
+      />
+
       <g class="video-regions" v-if="showRegions">
         <ellipse
           fill="red"
@@ -116,7 +122,7 @@
         </g>
       </g>
 
-      <g class="label-layer">
+      <g class="label-layer" @click="$emit('backgroundClick', $event)">
         <image
           :x="labelCoords.x"
           :y="labelCoords.y"
@@ -153,6 +159,7 @@
         <a class="background-record"
             v-if="foregroundIndex !== null"
             :href="`#ocaid=${backgroundRecords[foregroundIndex]}`"
+            @click="$emit('loadAndPlay')"
           >
             <img
               :src="`https://archive.org/download/${backgroundRecords[foregroundIndex]}/${backgroundRecords[foregroundIndex]}_itemimage.jpg`"
@@ -248,12 +255,10 @@ export default {
 
   methods: {
     play() {
-      this.$emit("play");
       this.$refs.video?.play();
     },
 
     pause() {
-      this.$emit("pause");
       this.$refs.video?.pause();
     },
 
