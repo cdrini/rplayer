@@ -553,7 +553,7 @@ export default {
     },
 
     async preloadTrack(track) {
-      track._preloadPromise ||= this._preloadTrack(track);
+      track._preloadPromise = track._preloadPromise || this._preloadTrack(track);
       await track._preloadPromise;
     },
 
