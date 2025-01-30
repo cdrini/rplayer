@@ -55,14 +55,14 @@
       <ChunkyButton @click="shuffleBackgroundRecords">
         <template #label>Shuffle</template>
       </ChunkyButton>
-      <ChunkyButton @click="settingsDrawerOpen = !settingsDrawerOpen">
+      <ChunkyButton @click="settingsDrawerOpen = true">
         <SettingsIcon />
         <template #label>Settings</template>
       </ChunkyButton>
     </div>
 
     <transition name="fade">
-      <div v-if="drawerOpen" class="drawer-screen" @click="closeDrawers" />
+      <div v-if="settingsDrawerOpen" class="drawer-screen" @click="closeDrawers" />
     </transition>
 
     <transition name="slide-fade">
@@ -267,15 +267,14 @@
 <script>
 import chunk from "lodash/chunk";
 import shuffle from "lodash/shuffle";
-import PointInput from "./components/PointInput";
-import NumberInput from "./components/NumberInput";
-import AlbumsQueueAlbum from "./components/AlbumsQueueAlbum";
-import RecordPlayer from "./components/RecordPlayer";
-import SettingsIcon from "./components/icons/SettingsIcon";
-import ChunkyButton from "./components/ChunkyButton";
-import Vue from "vue";
-import {findRecordLabelPosition} from './utils/imageUtils';
-import {Album} from './models';
+import PointInput from "./components/PointInput.vue";
+import NumberInput from "./components/NumberInput.vue";
+import AlbumsQueueAlbum from "./components/AlbumsQueueAlbum.vue";
+import RecordPlayer from "./components/RecordPlayer.vue";
+import SettingsIcon from "./components/icons/SettingsIcon.vue";
+import ChunkyButton from "./components/ChunkyButton.vue";
+import {findRecordLabelPosition} from './utils/imageUtils.js';
+import {Album} from './models.js';
 /** @typedef {import('./models').ErrorAlbum} ErrorAlbum */
 
 
@@ -399,10 +398,6 @@ export default {
     },
     activeAlbum() {
       return this.albumsQueue[this.activeAlbumIndex];
-    },
-
-    drawerOpen() {
-      return this.settingsDrawerOpen;
     },
     cycleLength() {
       return 1 / (this.rpm / 60);
@@ -565,7 +560,7 @@ export default {
     async _preloadTrack(track) {
       if (track.labelThumbSource) {
         console.log('PRELOAD', track.title);
-        Vue.set(track, 'labelPosition', await findRecordLabelPosition(track.labelThumbSource));
+        track.labelPosition = await findRecordLabelPosition(track.labelThumbSource);
       }
     },
 

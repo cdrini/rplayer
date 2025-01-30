@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import TrackList from "./TrackList";
+import TrackList from "./TrackList.vue";
 
 export default {
   components: { TrackList },

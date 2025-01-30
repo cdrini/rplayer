@@ -174,7 +174,7 @@
 </template>
 
 <script>
-import ChunkyButton from "./ChunkyButton";
+import ChunkyButton from "./ChunkyButton.vue";
 
 const POSITIONS = [
   { backgroundTransform: "matrix(3.6803983,-2.3394427,2.3394427,3.6803983,18.455985,-53.349974)" },
