@@ -7,7 +7,7 @@
       :max="getProperty('max')"
       :value="value"
       @input="$emit('input', parseFloat($event.target.value))"
-    />
+    >
     <input
       type="number"
       :step="getProperty('inputStep')"
@@ -15,7 +15,7 @@
       :max="getProperty('max')"
       :value="value"
       @input="$emit('input', parseFloat($event.target.value))"
-    />
+    >
   </div>
 </template>
 
@@ -34,6 +34,7 @@ export default {
     value: Number,
     type: {
       required: false,
+      type: String,
       default: "unitless",
     },
     min: {
@@ -57,6 +58,8 @@ export default {
       default: undefined,
     },
   },
+
+  emits: ["input"],
 
   methods: {
     getProperty(name) {

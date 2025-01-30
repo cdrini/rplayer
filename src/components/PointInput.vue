@@ -1,7 +1,7 @@
 <template>
   <div>
     <NumberInput v-model="point.x" />
-    <br />
+    <br>
     <NumberInput v-model="point.y" />
   </div>
 </template>

@@ -7,7 +7,7 @@
     webkitallowfullscreen="true"
     mozallowfullscreen="true"
     allowfullscreen
-  ></iframe>
+  />
 </template>
 
 <script>

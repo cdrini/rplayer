@@ -1,28 +1,28 @@
 <template>
   <div id="app">
-    <div class="rplayer-placeholder"></div>
+    <div class="rplayer-placeholder" />
     <RecordPlayer
-      class="record-player"
       ref="recordPlayer"
-      @loadAndPlay="loadAndPlay"
-      @backgroundClick="playing ? $refs.aplayer.pause() : $refs.aplayer.play()"
+      class="record-player"
+      :video-width="videoWidth"
+      :video-height="videoHeight"
+      :video-regions="videoRegions"
+      :label-regions="labelRegions"
+      :label-coords="labelCoords"
+      :label-position="labelPosition"
+      :label-source="labelSource"
+      :background-records="backgroundRecords"
+      :show-regions="showRegions"
+      :cycle-length="cycleLength"
+      :min-label-width="minLabelWidth"
+      @load-and-play="loadAndPlay"
+      @background-click="playing ? $refs.aplayer.pause() : $refs.aplayer.play()"
       @loadedmetadata="handleVideoLoaded"
-      :videoWidth="videoWidth"
-      :videoHeight="videoHeight"
-      :videoRegions="videoRegions"
-      :labelRegions="labelRegions"
-      :labelCoords="labelCoords"
-      :labelPosition="labelPosition"
-      :labelSource="labelSource"
-      :backgroundRecords="backgroundRecords"
-      :showRegions="showRegions"
-      :cycleLength="cycleLength"
-      :minLabelWidth="minLabelWidth"
     />
 
     <audio
-      controls
       ref="aplayer"
+      controls
       :src="activeSong?.src"
       @play="playing = true"
       @pause="playing = false"
@@ -31,11 +31,18 @@
 
     <div class="albums-queue">
       <template v-for="(album, albumIndex) of albumsQueue">
-        <div v-if="'error' in album" class="albums-queue--error" :key="album.ocaid">
-          {{album.error}}
+        <div
+          v-if="'error' in album"
+          :key="album.ocaid"
+          class="albums-queue--error"
+        >
+          {{ album.error }}
           <br>
           <small>
-            <a :href="`https://archive.org/details/${album.ocaid}`" target="_blank">{{album.ocaid}}</a>
+            <a
+              :href="`https://archive.org/details/${album.ocaid}`"
+              target="_blank"
+            >{{ album.ocaid }}</a>
           </small>
         </div>
         <AlbumsQueueAlbum
@@ -45,7 +52,9 @@
           :tracklist="filterTrackList(album.tracklist)"
         >
           <template #post-controls>
-            <button @click="jumpToSong(0, albumIndex)">Play</button>
+            <button @click="jumpToSong(0, albumIndex)">
+              Play
+            </button>
           </template>
         </AlbumsQueueAlbum>
       </template>
@@ -53,20 +62,31 @@
 
     <div class="right-toolbar">
       <ChunkyButton @click="shuffleBackgroundRecords">
-        <template #label>Shuffle</template>
+        <template #label>
+          Shuffle
+        </template>
       </ChunkyButton>
       <ChunkyButton @click="settingsDrawerOpen = true">
         <SettingsIcon />
-        <template #label>Settings</template>
+        <template #label>
+          Settings
+        </template>
       </ChunkyButton>
     </div>
 
     <transition name="fade">
-      <div v-if="settingsDrawerOpen" class="drawer-screen" @click="closeDrawers" />
+      <div
+        v-if="settingsDrawerOpen"
+        class="drawer-screen"
+        @click="closeDrawers"
+      />
     </transition>
 
     <transition name="slide-fade">
-      <div v-if="settingsDrawerOpen" class="settings-drawer">
+      <div
+        v-if="settingsDrawerOpen"
+        class="settings-drawer"
+      >
         <header>
           <button @click="settingsDrawerOpen = false">
             «
@@ -77,107 +97,130 @@
           <section>
             <h3>Queue</h3>
             <label>
-              <input type="radio" value="ocaids" v-model="queueSource" />
+              <input
+                v-model="queueSource"
+                type="radio"
+                value="ocaids"
+              >
               Play a specific list of IA identifiers
-              <br />
+              <br>
               <textarea
-                class="ocaid-input"
                 v-model="ocaid"
+                class="ocaid-input"
                 placeholder="IA ids"
               />
             </label>
             <label>
-              <input type="radio" value="query" v-model="queueSource" />
+              <input
+                v-model="queueSource"
+                type="radio"
+                value="query"
+              >
               Play results of an IA query (alpha)
               <input
+                v-model.lazy="query"
                 type="text"
                 class="query-input"
-                v-model.lazy="query"
                 placeholder="IA Query"
-              />
+              >
               <label>
                 Sort:
                 <label>
-                  <input type="radio" value="" v-model="querySort" />Relevance
+                  <input
+                    v-model="querySort"
+                    type="radio"
+                    value=""
+                  >Relevance
                 </label>
                 <label>
                   <input
+                    v-model="querySort"
                     type="radio"
                     value="downloads desc"
-                    v-model="querySort"
-                  />Views
+                  >Views
                 </label>
                 <label>
                   <input
+                    v-model="querySort"
                     type="radio"
                     value="date desc"
-                    v-model="querySort"
-                  />Date published (newest)</label
-                >
+                  >Date published (newest)</label>
                 <label>
                   <input
+                    v-model="querySort"
                     type="radio"
                     value="publicdate desc"
-                    v-model="querySort"
-                  />Date archived (newest)</label
-                >
+                  >Date archived (newest)</label>
                 <label>
                   <input
+                    v-model="querySort"
                     type="radio"
                     value="reviewdate desc"
-                    v-model="querySort"
-                  />Recently Reviewed</label
-                >
+                  >Recently Reviewed</label>
                 <label>
                   <input
+                    v-model="querySort"
                     type="radio"
                     value="avg_rating desc"
-                    v-model="querySort"
-                  />Top rated</label
-                >
+                  >Top rated</label>
                 <label>
-                  <input type="radio" v-model="querySort" :value="querySort" />
-                  Custom: <input type="text" v-model="querySort" />
+                  <input
+                    v-model="querySort"
+                    type="radio"
+                    :value="querySort"
+                  >
+                  Custom: <input
+                    v-model="querySort"
+                    type="text"
+                  >
                 </label>
               </label>
             </label>
 
-            <button @click="loadAlbumsQueue()">Load Queue</button>
+            <button @click="loadAlbumsQueue()">
+              Load Queue
+            </button>
           </section>
 
-          <hr />
+          <hr>
           <section>
             <h3>Preferred Track Quality</h3>
-            <small
-              >Some tracks have been digitally restored for better
-              quality.</small
-            >
-            <br />
-            <label>
-              <input type="radio" v-model="preferredQuality" value="restored" />
-              Restored
-            </label>
-            <br />
+            <small>Some tracks have been digitally restored for better
+              quality.</small>
+            <br>
             <label>
               <input
-                type="radio"
                 v-model="preferredQuality"
+                type="radio"
+                value="restored"
+              >
+              Restored
+            </label>
+            <br>
+            <label>
+              <input
+                v-model="preferredQuality"
+                type="radio"
                 value="unrestored"
-              />
+              >
               Unrestored
             </label>
-            <br />
+            <br>
             <label>
-              <input type="radio" v-model="preferredQuality" value="both" />
+              <input
+                v-model="preferredQuality"
+                type="radio"
+                value="both"
+              >
               <div style="display: inline-block; vertical-align: top">
                 Both
-                <br />
+                <br>
                 <small>May result in songs appearing duplicated</small>
               </div>
             </label>
           </section>
 
-          <hr />
+          <hr>
           <section>
             <h3>About</h3>
             A little record player. Powered by
@@ -185,28 +228,31 @@
             collection. The beautiful record player video is
             <a
               href="https://pixabay.com/videos/record-player-vinyl-retro-record-38392/"
-              >Record Player 38392</a
-            >
+            >Record Player 38392</a>
             by
-            <a href="https://pixabay.com/users/matthias_groeneveld-4535957"
-              >Matthias Groeneveld</a
-            >. The code is available on GitHub:
-            <a href="https://github.com/cdrini/rplayer"
-              >github.com/cdrini/rplayer</a
-            >.
+            <a href="https://pixabay.com/users/matthias_groeneveld-4535957">Matthias Groeneveld</a>. The code is available on GitHub:
+            <a href="https://github.com/cdrini/rplayer">github.com/cdrini/rplayer</a>.
           </section>
 
-          <hr />
+          <hr>
           <details>
             <summary>Dev Controls</summary>
 
             <label>
               Min Label Width
-              <NumberInput :step="1" :min="0" :max="500" v-model="minLabelWidth" />
+              <NumberInput
+                v-model="minLabelWidth"
+                :step="1"
+                :min="0"
+                :max="500"
+              />
             </label>
 
             <label>
-              <input type="checkbox" v-model="showRegions" />
+              <input
+                v-model="showRegions"
+                type="checkbox"
+              >
               Show pin dots
             </label>
 
@@ -215,40 +261,45 @@
               <PointInput :point="videoRegions.pin" />
             </label>
 
-            <br />
+            <br>
 
             <label>
               Pin Position in label image:
-              <br />
+              <br>
               <PointInput :point="labelRegions.pin" />
             </label>
 
-            <br />
+            <br>
 
             <label>
               Label Opacity
               <input
+                v-model="labelPosition.opacity"
                 type="range"
                 step="0.01"
                 min="0"
                 :max="1"
-                v-model="labelPosition.opacity"
-              />
+              >
             </label>
-            <br />
+            <br>
 
             <label>
               RPM
-              <NumberInput :step="1" :min="1" :max="100" v-model="rpm" />
+              <NumberInput
+                v-model="rpm"
+                :step="1"
+                :min="1"
+                :max="100"
+              />
             </label>
-            <br />
+            <br>
             <label>
               Label Clip
               <NumberInput
+                v-model="labelPosition.clipPadding"
                 :step="1"
                 :min="0"
                 :max="100"
-                v-model="labelPosition.clipPadding"
               />
             </label>
           </details>
@@ -257,8 +308,13 @@
     </transition>
 
     <div class="center-toolbar">
-      <ChunkyButton v-if="!playing" @click="$refs.aplayer.play()">
-        <template #label>Play</template>
+      <ChunkyButton
+        v-if="!playing"
+        @click="$refs.aplayer.play()"
+      >
+        <template #label>
+          Play
+        </template>
       </ChunkyButton>
     </div>
   </div>
@@ -381,13 +437,6 @@ export default {
     updateFromHash(data);
     return data;
   },
-  mounted() {
-    window.addEventListener("hashchange", this.updateFromHash, false);
-    this.updateFromHash();
-  },
-  beforeDestroy() {
-    window.removeEventListener("hashchange", this.updateFromHash);
-  },
   computed: {
     activeTrackList() {
       if (!this.activeAlbum) return [];
@@ -438,6 +487,13 @@ export default {
       if (newVal) this.$refs.recordPlayer?.play();
       else this.$refs.recordPlayer?.pause();
     },
+  },
+  mounted() {
+    window.addEventListener("hashchange", this.updateFromHash, false);
+    this.updateFromHash();
+  },
+  beforeUnmount() {
+    window.removeEventListener("hashchange", this.updateFromHash);
   },
   methods: {
     updateToHash() {

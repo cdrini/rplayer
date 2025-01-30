@@ -5,13 +5,14 @@
       :class="{'albums-queue-album__cover--label': !album.hasCover}"
       :src="album.labelSource"
       loading="lazy"
-    />
+    >
     <div style="flex: 1">
       <TrackList :songs="tracklist || album.tracklist" />
       <div class="albums-queue-album__controls">
-        <a :href="`https://archive.org/details/${album.ocaid}`" target="_blank"
-          >Details</a
-        >
+        <a
+          :href="`https://archive.org/details/${album.ocaid}`"
+          target="_blank"
+        >Details</a>
         <slot name="post-controls" />
       </div>
     </div>

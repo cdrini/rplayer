@@ -1,5 +1,8 @@
 <template>
-  <div class="video-wrapper" ref="root">
+  <div
+    ref="root"
+    class="video-wrapper"
+  >
     <video
       ref="video"
       xmlns="http://www.w3.org/1999/xhtml"
@@ -36,7 +39,11 @@
         </mask>
 
         <mask id="record-player-obsturction">
-          <rect width="100%" height="100%" fill="white" />
+          <rect
+            width="100%"
+            height="100%"
+            fill="white"
+          />
           <path
             fill="black"
             style="filter: blur(2px)"
@@ -53,8 +60,14 @@
         </mask>
 
         <linearGradient id="shadow-gradient">
-          <stop offset="0" style="stop-fill: black; stop-opacity: 1" />
-          <stop offset="1" style="stop-fill: black; stop-opacity: 0" />
+          <stop
+            offset="0"
+            style="stop-fill: black; stop-opacity: 1"
+          />
+          <stop
+            offset="1"
+            style="stop-fill: black; stop-opacity: 0"
+          />
         </linearGradient>
 
         <radialGradient
@@ -76,7 +89,10 @@
         @click="$emit('backgroundClick', $event)"
       />
 
-      <g class="video-regions" v-if="showRegions">
+      <g
+        v-if="showRegions"
+        class="video-regions"
+      >
         <ellipse
           fill="red"
           :cx="videoUnitCoordToCanvasCoord(videoRegions.pin).x"
@@ -86,14 +102,16 @@
         />
       </g>
 
-      <g class="background-records-layer"
+      <g
         v-if="backgroundRecords.length"
+        class="background-records-layer"
         mask="url(#record-player-obsturction)"
       >
         <g class="background-records">
-          <a class="background-record"
+          <a
             v-for="(_, index) in POSITIONS"
             :key="index"
+            class="background-record"
             :transform="POSITIONS[index].backgroundTransform"
             :href="`#ocaid=${backgroundRecords[index]}`"
             @click="showInForeground($event, index)"
@@ -108,7 +126,8 @@
             />
           </a>
         </g>
-        <g class="lighting-effects"
+        <g
+          class="lighting-effects"
           style="pointer-events: none;"
         >
           <path
@@ -122,7 +141,10 @@
         </g>
       </g>
 
-      <g class="label-layer" @click="$emit('backgroundClick', $event)">
+      <g
+        class="label-layer"
+        @click="$emit('backgroundClick', $event)"
+      >
         <image
           :x="labelCoords.x"
           :y="labelCoords.y"
@@ -143,33 +165,38 @@
           }"
         />
       </g>
-      <g class="label-regions" v-if="showRegions">
+      <g
+        v-if="showRegions"
+        class="label-regions"
+      >
         <ellipse
           fill="blue"
-          :cx="this.labelCoords.cx"
-          :cy="this.labelCoords.cy"
+          :cx="labelCoords.cx"
+          :cy="labelCoords.cy"
           rx="5"
           ry="5"
         />
       </g>
     </svg>
-    <div class="foreground-record"
+    <div
+      class="foreground-record"
       @click="foregroundIndex = null"
     >
-        <a class="background-record"
-            v-if="foregroundIndex !== null"
-            :href="`#ocaid=${backgroundRecords[foregroundIndex]}`"
-            @click="$emit('loadAndPlay')"
-          >
-            <img
-              :src="`https://archive.org/download/${backgroundRecords[foregroundIndex]}/${backgroundRecords[foregroundIndex]}_itemimage.jpg`"
-            />
+      <a
+        v-if="foregroundIndex !== null"
+        class="background-record"
+        :href="`#ocaid=${backgroundRecords[foregroundIndex]}`"
+        @click="$emit('loadAndPlay')"
+      >
+        <img
+          :src="`https://archive.org/download/${backgroundRecords[foregroundIndex]}/${backgroundRecords[foregroundIndex]}_itemimage.jpg`"
+        >
 
-            <ChunkyButton>
-              <template #label>Play</template>
-            </ChunkyButton>
-          </a>
-        </div>
+        <ChunkyButton>
+          <template #label>Play</template>
+        </ChunkyButton>
+      </a>
+    </div>
   </div>
 </template>
 
@@ -211,6 +238,7 @@ export default {
     },
 
     showRegions: {
+      type: Boolean,
       default: false,
     },
     videoRegions: {
@@ -244,6 +272,8 @@ export default {
       require: true,
     },
   },
+
+  emits: ["loadedmetadata", "backgroundClick", "loadAndPlay"],
 
   data() {
     return {

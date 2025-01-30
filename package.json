@@ -6,35 +6,23 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint --ext .js,.vue src"
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
   },
   "dependencies": {
     "d3-color": "^2.0.0",
-    "lodash": "4.17.20",
+    "lodash": "4.17.21",
     "vue": "^3.5.13"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
     "autoprefixer": "^10.4.20",
-    "eslint": "^8.57.0",
-    "eslint-plugin-vue": "^9.26.0",
+    "eslint": "^9.19.0",
+    "eslint-plugin-vue": "^9.32.0",
     "postcss": "^8.5.1",
     "vite": "^6.0.11"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "browser": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "rules": {
-      "vue/no-mutating-props": "off"
-    }
   },
   "postcss": {
     "plugins": {

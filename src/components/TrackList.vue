@@ -1,21 +1,29 @@
 <template>
   <ol class="tracklist">
     <li
-      class="tracklist__song"
       v-for="(song, i) of songs"
       :key="i"
+      class="tracklist__song"
       style="display: flex; align-items: center"
     >
       <div class="tracklist__song-index">
         {{ song.track || i + 1 }}
       </div>
       <div style="flex: 1">
-        <div class="tracklist__song-title">{{ song.title }}</div>
-        <div class="tracklist__song-artist" v-if="song.artist">
+        <div class="tracklist__song-title">
+          {{ song.title }}
+        </div>
+        <div
+          v-if="song.artist"
+          class="tracklist__song-artist"
+        >
           {{ song.artist }}
         </div>
       </div>
-      <div class="tracklist__song-duration" v-if="song.duration">
+      <div
+        v-if="song.duration"
+        class="tracklist__song-duration"
+      >
         {{ formatDuration(song.duration) }}
       </div>
     </li>
